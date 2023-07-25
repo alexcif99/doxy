@@ -7,15 +7,17 @@ public class User {
     private String username;
     private String email;
     private String contraseña;
+    private Boolean isChecked;
 
     // Constructor
-    public User(int id, String nombre, String apellido, String username, String email, String contraseña) {
+    public User(int id, String nombre, String apellido, String username, String email, Boolean isChecked) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
         this.username = username;
         this.email = email;
-        this.contraseña = contraseña;
+        this.isChecked = isChecked;
+//        this.contraseña = contraseña;
     }
 
     // Getters y setters
@@ -65,5 +67,13 @@ public class User {
 
     public void setContraseña(String contraseña) {
         this.contraseña = contraseña;
+    }
+
+    public boolean isChecked() {
+        return isChecked;
+    }
+
+    public void setChecked(boolean checked) {
+        isChecked = checked;
     }
 }

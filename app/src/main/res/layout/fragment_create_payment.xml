@@ -1,35 +1,83 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="16dp">
 
     <EditText
         android:id="@+id/editTextTitlePayment"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Título" />
+        android:layout_marginTop="4dp"
+        android:background="@drawable/edittext_bg"
+        android:hint="Título"
+        android:padding="12dp"
+        android:textColorHint="#999999"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/editTextDescriptionPayment"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Descripción" />
+        android:layout_marginTop="8dp"
+        android:background="@drawable/edittext_bg"
+        android:hint="Descripción"
+        android:padding="12dp"
+        android:textColorHint="#999999"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextTitlePayment"/>
 
     <EditText
         android:id="@+id/editTextAmountPayment"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:inputType="number"
-        android:hint="Importe" />
+        android:layout_marginTop="8dp"
+        android:background="@drawable/edittext_bg"
+        android:hint="Importe"
+        android:padding="12dp"
+        android:textColorHint="#999999"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:inputType="numberDecimal"
+        app:layout_constraintTop_toBottomOf="@+id/editTextDescriptionPayment"/>
 
-<!--    todo: afegir usuarios que deuen -->
+    <TextView
+        android:id="@+id/textViewAmigos"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text=" Con quien quieres dividir el pago?"
+        android:textSize="18dp"
+        android:textColor="#000000"
+        app:layout_constraintStart_toStartOf="@+id/recyclerViewUsersToAddP"
+        app:layout_constraintTop_toBottomOf="@+id/editTextAmountPayment" />
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewUsersToAddP"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/textViewAmigos"
+        app:layout_constraintBottom_toTopOf="@+id/buttonCreatePayment"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0"
+        app:layout_constraintVertical_chainStyle="packed"/>
 
     <Button
         android:id="@+id/buttonCreatePayment"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Crear Grupo de Pago" />
+        android:layout_marginTop="8dp"
+        android:text="Crear Pago"
+        app:layout_constraintTop_toBottomOf="@+id/recyclerViewUsersToAddP"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,34 +1,45 @@
 package com.alexc.doxy;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.ui.AppBarConfiguration;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
-import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity{
 
     private BottomNavigationView bottomNavigationView;
     private NavController navController;
     private AppBarConfiguration appBarConfiguration;
+    private DatabaseHelper databaseHelper;
 
     HomeFragment homeFragment = new HomeFragment();
     BalanceFragment balanceFragment = new BalanceFragment();
-    ProfileFragment profileFragment = new ProfileFragment();
+    FriendsFragment friendsFragment = new FriendsFragment();
     CreatePaymentGroupFragment createPaymentGroupFragment = new CreatePaymentGroupFragment();
     Fragment active = homeFragment;
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Crear una instancia de DatabaseHelper
+        databaseHelper = new DatabaseHelper(this);
+
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("DoxyPrefs", Context.MODE_PRIVATE);
+        String userId = sharedPreferences.getString("userId", "");
+        User u = databaseHelper.getUser(Integer.parseInt(userId));
+
+        ProfileFragment profileFragment = ProfileFragment.newInstance(u.getId(), u.getNombre(), u.getApellido(), u.getUsername(), u.getEmail());
 
         bottomNavigationView = findViewById(R.id.bottom_navigation_view);
 
@@ -48,6 +59,9 @@ public class MainActivity extends AppCompatActivity{
                         return true;
                     case R.id.nav_profile:
                         getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, profileFragment).commit();
+                        return true;
+                    case R.id.nav_friends:
+                        getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, friendsFragment).commit();
                         return true;
                 }
                 return false;

@@ -5,6 +5,8 @@ import static com.alexc.doxy.DatabaseHelper.PAYMENT_GROUP_ID;
 import static com.alexc.doxy.DatabaseHelper.PAYMENT_GROUP_TITLE;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 
@@ -77,9 +79,13 @@ public class HomeFragment extends Fragment {
 
         databaseHelper = new DatabaseHelper(this.getActivity());
 
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("DoxyPrefs", Context.MODE_PRIVATE);
+        String string_user_id = sharedPreferences.getString("userId", "");
+        Integer user_id = Integer.parseInt(string_user_id);
+
         // Obtener una lista de ejemplo de grupos de pago
 //        List<PaymentGroup> paymentGroups = getSamplePaymentGroups();
-        Cursor cursor = databaseHelper.getPaymentGroups();
+        Cursor cursor = databaseHelper.getPaymentGroups(user_id);
 
         // Verificar si el Cursor tiene datos
         ArrayList<PaymentGroup> paymentGroups = new ArrayList<>();
@@ -121,7 +127,7 @@ public class HomeFragment extends Fragment {
             public void onItemClick(PaymentGroup paymentGroup) {
                 // Acciones a realizar cuando se hace clic en un Payment Group
                 // Por ejemplo, abrir el fragmento PaymentGroupFragment relacionado
-                PaymentGroupFragment fragment = PaymentGroupFragment.newInstance(paymentGroup.getId());
+                PaymentGroupFragment fragment = PaymentGroupFragment.newInstance(paymentGroup.getId(), paymentGroup.getTitle(), paymentGroup.getDescription());
                 FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.nav_host_fragment, fragment);

@@ -1,0 +1,34 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/textViewDialogMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="¿Estás seguro que deseas eliminar a este amigo?"
+        android:textSize="18sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/buttonDialogYes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sí"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/buttonDialogNo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+</LinearLayout>

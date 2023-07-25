@@ -1,64 +1,66 @@
 package com.alexc.doxy;
 
+import static java.lang.Integer.parseInt;
+
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ProfileFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import androidx.fragment.app.Fragment;
+
 public class ProfileFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private TextView textViewUsername;
+    private TextView textViewEmail;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private DatabaseHelper databaseHelper;
 
     public ProfileFragment() {
-        // Required empty public constructor
+        // Constructor vacío requerido
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ProfileFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ProfileFragment newInstance(String param1, String param2) {
+    public static ProfileFragment newInstance(Integer userId, String name, String surname, String username, String email) {
         ProfileFragment fragment = new ProfileFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+
+        args.putInt("userId", userId);
+        args.putString("name", name);
+        args.putString("surname", surname);
+        args.putString("username", username);
+        args.putString("email", email);
         fragment.setArguments(args);
         return fragment;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_profile, container, false);
+        textViewUsername = view.findViewById(R.id.profile_name);
+        textViewEmail = view.findViewById(R.id.profile_email);
+
+        // Crear una instancia de DatabaseHelper
+        databaseHelper = new DatabaseHelper(this.getActivity());
+
+//        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("DoxyPrefs", Context.MODE_PRIVATE);
+//        String user_id = sharedPreferences.getString("userId", "");
+//        System.out.println("USER ID: " + user_id);
+
+        Integer userId = getArguments().getInt("userId");
+        String name = getArguments().getString("name");
+        String surname = getArguments().getString("surname");
+        String username = getArguments().getString("username");
+        String email = getArguments().getString("email");
+
+        // Mostrar los datos en los TextViews
+        textViewUsername.setText(username);
+        textViewEmail.setText(email);
+
+        return view;
     }
 }

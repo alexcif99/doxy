@@ -63,7 +63,7 @@ public class PaymentGroupAdapter extends RecyclerView.Adapter<PaymentGroupAdapte
         void onItemClick(PaymentGroup paymentGroup);
     }
 
-    public void setOnItemClickListener(OnItemClickListener listener) {
+    public void setOnItemClickListener(PaymentGroupAdapter.OnItemClickListener listener) {
         this.onItemClickListener = listener;
     }
 }

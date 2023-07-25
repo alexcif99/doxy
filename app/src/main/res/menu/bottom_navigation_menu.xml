@@ -6,14 +6,19 @@
         android:title="Home" />
 
     <item
+        android:id="@+id/nav_create_group"
+        android:icon="@drawable/ic_add"
+        android:title="Crear Grupo" />
+
+    <item
         android:id="@+id/nav_balance"
         android:icon="@drawable/ic_exchange"
         android:title="Balance" />
 
     <item
-        android:id="@+id/nav_create_group"
-        android:icon="@drawable/ic_add"
-        android:title="Crear Grupo" />
+        android:id="@+id/nav_friends"
+        android:icon="@drawable/ic_add_friends"
+        android:title="Amigos" />
 
     <item
         android:id="@+id/nav_profile"
