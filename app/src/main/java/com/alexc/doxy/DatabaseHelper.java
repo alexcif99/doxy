@@ -19,7 +19,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
     //General
     private static final String DATABASE_NAME = "doxy_db";
-    private static final int DATABASE_VERSION = 36;
+    private static final int DATABASE_VERSION = 37;
     private Context context;
 
     // User
@@ -808,6 +808,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String[] columns = {TRANSACTION_ID, TRANSACTION_PAYMENT_GROUP_ID, TRANSACTION_USER_ID, TRANSACTION_AMOUNT};
         String selection = TRANSACTION_USERTO_PAY_ID + " = ? AND " + TRANSACTION_AMOUNT + " > 0"; //todo: fer que isPaid = 0
         String[] selectionArgs = {String.valueOf(userId)};
+        return db.query(TABLE_TRANSACTIONS, columns, selection, selectionArgs, null, null, null);
+
+    }
+
+    public Cursor getTransactionsFromPG(int pg_id){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {TRANSACTION_ID, TRANSACTION_PAYMENT_GROUP_ID, TRANSACTION_USER_ID, TRANSACTION_USERTO_PAY_ID, TRANSACTION_AMOUNT};
+        String selection = TRANSACTION_PAYMENT_GROUP_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(pg_id)};
         return db.query(TABLE_TRANSACTIONS, columns, selection, selectionArgs, null, null, null);
 
     }

@@ -14,6 +14,7 @@ import java.util.List;
 public class PaymentAdapter extends RecyclerView.Adapter<PaymentAdapter.PaymentViewHolder>{
     private List<Payment> payments;
     private OnItemClickListener onItemClickListener;
+    private DatabaseHelper databaseHelper;
 
     public PaymentAdapter(List<Payment> payments) {
         this.payments = payments;
@@ -26,6 +27,8 @@ public class PaymentAdapter extends RecyclerView.Adapter<PaymentAdapter.PaymentV
         return new PaymentViewHolder(view);
     }
 
+    // todo: al Balance posar totes les transaccions en un sol reciclerview pero amb import negatius o positius (o diferents colors) i ordenats pel que mes deus al que mes et deuen)
+
     @Override
     public void onBindViewHolder(@NonNull PaymentViewHolder holder, int position) {
         Payment payment = payments.get(position);
@@ -33,7 +36,8 @@ public class PaymentAdapter extends RecyclerView.Adapter<PaymentAdapter.PaymentV
         String amount = String.valueOf(payment.getAmount());
         // Mostrar los datos del grupo de pago en la tarjeta
         holder.textViewTitle.setText(payment.getTitle());
-        holder.textViewAmount.setText(amount);
+        holder.textViewOwner.setText(String.valueOf(payment.getOwnerUserId()));
+        holder.textViewAmount.setText(amount + "€");
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

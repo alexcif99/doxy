@@ -37,10 +37,10 @@ import java.util.ArrayList;
 
 public class BalanceFragment extends Fragment {
 
-    private TextView textViewTitleDebes;
+    private TextView textViewTransactionsHeader;
     private TextView textViewTitleTeDeben;
-    private RecyclerView recyclerviewDebes;
-    private RecyclerView recyclerviewTeDeben;
+    private RecyclerView recyclerviewTransactions;
+//    private RecyclerView recyclerviewTeDeben;
     private TransactionAdapter adapterDebes;
     private TransactionAdapter adapterTeDeben;
     private DatabaseHelper databaseHelper;
@@ -49,14 +49,15 @@ public class BalanceFragment extends Fragment {
         // Required empty public constructor
     }
 
+    @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_balance, container, false);
 
-        textViewTitleDebes = view.findViewById(R.id.textViewDebes);
-        textViewTitleTeDeben = view.findViewById(R.id.textViewTeDeben);
+        textViewTransactionsHeader = view.findViewById(R.id.textViewTransactionsHeader);
+//        textViewTitleTeDeben = view.findViewById(R.id.textViewTeDeben);
 
         databaseHelper = new DatabaseHelper(this.getActivity());
 
@@ -70,7 +71,7 @@ public class BalanceFragment extends Fragment {
 
         Log.d("mida query", Integer.toString(cursorDebes.getCount()));
 
-        ArrayList<Transaction> debtsTransaction  = new ArrayList<>();
+        ArrayList<Transaction> transactions  = new ArrayList<>();
         if (cursorDebes != null && cursorDebes.moveToFirst()) {
             do {
                 @SuppressLint("Range") int id = cursorDebes.getInt(cursorDebes.getColumnIndex(TRANSACTION_ID));
@@ -78,46 +79,33 @@ public class BalanceFragment extends Fragment {
                 @SuppressLint("Range") int payment_group_id = cursorDebes.getInt(cursorDebes.getColumnIndex(TRANSACTION_PAYMENT_GROUP_ID));
                 @SuppressLint("Range") double amount = cursorDebes.getDouble(cursorDebes.getColumnIndex(TRANSACTION_AMOUNT));
 
+                double amount_to_show = amount;
                 // Arrodonim amount, no interessen molts decimals
                 if (amount % 1 == 0) {
                     DecimalFormat decimalFormat = new DecimalFormat("#.00");
                     String formattedAmount = decimalFormat.format(amount);
                     formattedAmount = formattedAmount.replace(",", ".");
-                    amount = Double.parseDouble(formattedAmount);
+                    amount_to_show = Double.parseDouble(formattedAmount);
                 } else {
-                    amount = Math.round(amount * 100.0) / 100.0;
+                    amount_to_show = Math.round(amount * 100.0) / 100.0;
                 }
 
                 User user = databaseHelper.getUser(user_id);
                 User user_to_pay = databaseHelper.getUser(user_to_pay_id);
                 PaymentGroup paymentGroup = databaseHelper.getPaymentGroupObj(payment_group_id);
 
-                Transaction transaction = new Transaction(id, paymentGroup, user, user_to_pay, amount);
-                debtsTransaction.add(transaction);
+                Transaction transaction = new Transaction(id, paymentGroup, user, user_to_pay, -amount, -amount_to_show);
+                transactions.add(transaction);
             } while (cursorDebes.moveToNext());
         }
         if (cursorDebes != null) {
             cursorDebes.close();
         }
 
-        recyclerviewDebes = view.findViewById(R.id.recyclerViewDebes);
-        recyclerviewDebes.setLayoutManager(new LinearLayoutManager(getActivity()));
-        adapterDebes = new TransactionAdapter(debtsTransaction);
-        adapterDebes.setOnTransactionClickListener(new TransactionAdapter.OnTransactionClickListener() {
-            @Override
-            public void onTransactionClick(Transaction transaction) {
-                showConfirmationDialogForTransaction(transaction);
-            }
-        });
-        recyclerviewDebes.setAdapter(adapterDebes);
-
-        // Te deben --------------------------------------------------------------------------------
-
         Cursor cursorTeDeben = databaseHelper.getTedebenTransactions(user_id);
 
         Log.d("mida query", Integer.toString(cursorTeDeben.getCount()));
 
-        ArrayList<Transaction> creditsTransaction  = new ArrayList<>();
         if (cursorTeDeben != null && cursorTeDeben.moveToFirst()) {
             do {
                 @SuppressLint("Range") int id = cursorTeDeben.getInt(cursorTeDeben.getColumnIndex(TRANSACTION_ID));
@@ -125,35 +113,49 @@ public class BalanceFragment extends Fragment {
                 @SuppressLint("Range") int payment_group_id = cursorTeDeben.getInt(cursorTeDeben.getColumnIndex(TRANSACTION_PAYMENT_GROUP_ID));
                 @SuppressLint("Range") double amount = cursorTeDeben.getDouble(cursorTeDeben.getColumnIndex(TRANSACTION_AMOUNT));
 
+                double amount_to_show = amount;
                 // Arrodonim amount, no interessen molts decimals
                 if (amount % 1 == 0) {
                     DecimalFormat decimalFormat = new DecimalFormat("#.00");
                     String formattedAmount = decimalFormat.format(amount);
                     formattedAmount = formattedAmount.replace(",", ".");
-                    amount = Double.parseDouble(formattedAmount);
+                    amount_to_show = Double.parseDouble(formattedAmount);
                 } else {
-                    amount = Math.round(amount * 100.0) / 100.0;
+                    amount_to_show = Math.round(amount * 100.0) / 100.0;
                 }
 
                 User user = databaseHelper.getUser(user_id);
                 User debtor_user = databaseHelper.getUser(debtor_user_id);
                 PaymentGroup paymentGroup = databaseHelper.getPaymentGroupObj(payment_group_id);
 
-                Transaction transaction = new Transaction(id, paymentGroup, user, debtor_user, amount);
+                Transaction transaction = new Transaction(id, paymentGroup, user, debtor_user, amount, amount_to_show);
 
                 Log.d("Transaction: ", Integer.toString(transaction.getId()));
 
-                creditsTransaction.add(transaction);
+                transactions.add(transaction);
             } while (cursorTeDeben.moveToNext());
         }
         if (cursorTeDeben != null) {
             cursorTeDeben.close();
         }
 
-        recyclerviewTeDeben = view.findViewById(R.id.recyclerViewTeDeben);
-        recyclerviewTeDeben.setLayoutManager(new LinearLayoutManager(getActivity()));
-        adapterTeDeben = new TransactionAdapter(creditsTransaction);
-        recyclerviewTeDeben.setAdapter(adapterTeDeben);
+        recyclerviewTransactions = view.findViewById(R.id.recyclerviewTransactions);
+        recyclerviewTransactions.setLayoutManager(new LinearLayoutManager(getActivity()));
+        adapterDebes = new TransactionAdapter(transactions);
+        adapterDebes.setOnTransactionClickListener(new TransactionAdapter.OnTransactionClickListener() {
+            @Override
+            public void onTransactionClick(Transaction transaction) {
+                if (transaction.getAmount() > 0){
+                    Toast.makeText(getActivity(), "Tu amigo " + transaction.getUser_to_pay().getUsername() + " te debe " + transaction.getAmount_to_show() + "€",
+                            Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    showConfirmationDialogForTransaction(transaction);
+                }
+            }
+        });
+        recyclerviewTransactions.setAdapter(adapterDebes);
+
         return view;
     }
 
@@ -161,7 +163,7 @@ public class BalanceFragment extends Fragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle("Marcar como pagado");
         builder.setMessage("¿Quieres liquidar tu deuda de " +
-                transaction.getAmount() + "€ con " + transaction.getUser_to_pay().getUsername());
+                transaction.getAmount_to_show() + "€ con " + transaction.getUser_to_pay().getUsername());
         builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -173,10 +175,26 @@ public class BalanceFragment extends Fragment {
     }
 
     public void makePayment(Transaction transaction){
+        Integer paymentGroupId = transaction.getPayment_group().getId();
 
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("DoxyPrefs", Context.MODE_PRIVATE);
+        String string_user_id = sharedPreferences.getString("userId", "");
+        Integer selfUserId = Integer.parseInt(string_user_id);
 
-        Toast.makeText(getActivity(), "Deudas del grupo" + transaction.getPayment_group().getTitle() +
+        Integer userToPayId = transaction.getUser_to_pay().getId();
+        Double amount = transaction.getAmount();
+        Double old_amount = databaseHelper.getDoubleAmountRelUserPG(paymentGroupId, userToPayId);
+        Double self_old_amount = databaseHelper.getDoubleAmountRelUserPG(paymentGroupId, selfUserId);
+
+        databaseHelper.addAmountRelUserPG(paymentGroupId, selfUserId, (amount * -1), self_old_amount);
+        databaseHelper.addAmountRelUserPG(paymentGroupId, userToPayId, amount, old_amount);
+
+        CreatePaymentFragment createPaymentFragment = new CreatePaymentFragment();
+        createPaymentFragment.balancePayments(paymentGroupId, databaseHelper);
+
+        Toast.makeText(getActivity(), "Deudas del grupo " + transaction.getPayment_group().getTitle() +
                 " con " + transaction.getUser_to_pay().getUsername() + " saldadas correctamente",
                 Toast.LENGTH_SHORT).show();
+
     }
 }

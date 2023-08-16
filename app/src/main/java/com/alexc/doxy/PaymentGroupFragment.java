@@ -142,7 +142,9 @@ public class PaymentGroupFragment extends Fragment {
             public void onClick(View v) {
                 Bundle args = getArguments();
                 Integer paymentGroupId = args.getInt("paymentGroupId");
-                CreatePaymentFragment createPaymentFragment = CreatePaymentFragment.newInstance(paymentGroupId);
+                String title = args.getString("title");
+                String description = args.getString("description");
+                PaymentGroupDetailsFragment paymentGroupDetailsFragment = PaymentGroupDetailsFragment.newInstance(paymentGroupId, title, description);
                 FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.nav_host_fragment, paymentGroupDetailsFragment);

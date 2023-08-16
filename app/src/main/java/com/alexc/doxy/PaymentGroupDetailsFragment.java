@@ -5,6 +5,11 @@ import static com.alexc.doxy.DatabaseHelper.PAYMENT_DESCRIPTION;
 import static com.alexc.doxy.DatabaseHelper.PAYMENT_ID;
 import static com.alexc.doxy.DatabaseHelper.PAYMENT_TITLE;
 import static com.alexc.doxy.DatabaseHelper.PAYMENT_USER_OWNER_ID;
+import static com.alexc.doxy.DatabaseHelper.TRANSACTION_AMOUNT;
+import static com.alexc.doxy.DatabaseHelper.TRANSACTION_ID;
+import static com.alexc.doxy.DatabaseHelper.TRANSACTION_PAYMENT_GROUP_ID;
+import static com.alexc.doxy.DatabaseHelper.TRANSACTION_USERTO_PAY_ID;
+import static com.alexc.doxy.DatabaseHelper.TRANSACTION_USER_ID;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -21,6 +26,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class PaymentGroupDetailsFragment extends Fragment {
@@ -31,7 +37,7 @@ public class PaymentGroupDetailsFragment extends Fragment {
     private int paymentGroupId;
     private TransactionDetailsAdapter adapter;
 
-    public PaymentGroupDetailsFragment(){
+    public PaymentGroupDetailsFragment() {
 
     }
 
@@ -74,18 +80,31 @@ public class PaymentGroupDetailsFragment extends Fragment {
         databaseHelper = new DatabaseHelper(this.getActivity());
 
         // todo: implementar getTransactions i obtenir resultats
-        Cursor cursor = databaseHelper.getTransactions(paymentGroupId);
+        Cursor cursor = databaseHelper.getTransactionsFromPG(paymentGroupId);
 
         ArrayList<Transaction> transactions = new ArrayList<>();
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                @SuppressLint("Range") int id = cursor.getInt(cursor.getColumnIndex(PAYMENT_ID));
-                @SuppressLint("Range") String title = cursor.getString(cursor.getColumnIndex(PAYMENT_TITLE));
-                @SuppressLint("Range") String description = cursor.getString(cursor.getColumnIndex(PAYMENT_DESCRIPTION));
-                @SuppressLint("Range") Double amount = cursor.getDouble(cursor.getColumnIndex(PAYMENT_AMOUNT));
-                @SuppressLint("Range") Integer owner = cursor.getInt(cursor.getColumnIndex(PAYMENT_USER_OWNER_ID));
+                @SuppressLint("Range") int id = cursor.getInt(cursor.getColumnIndex(TRANSACTION_ID));
+                @SuppressLint("Range") Integer payment_group_id = cursor.getInt(cursor.getColumnIndex(TRANSACTION_PAYMENT_GROUP_ID));
+                @SuppressLint("Range") Integer trans_user_id = cursor.getInt(cursor.getColumnIndex(TRANSACTION_USER_ID));
+                @SuppressLint("Range") Integer user_to_pay_id = cursor.getInt(cursor.getColumnIndex(TRANSACTION_USERTO_PAY_ID));
+                @SuppressLint("Range") Double amount = cursor.getDouble(cursor.getColumnIndex(TRANSACTION_AMOUNT));
 
-                Transaction transaction = new Transaction(id, title, description, amount, owner);
+                double amount_to_show = amount;
+                if (amount % 1 == 0) {
+                    DecimalFormat decimalFormat = new DecimalFormat("#.00");
+                    String formattedAmount = decimalFormat.format(amount);
+                    formattedAmount = formattedAmount.replace(",", ".");
+                    amount_to_show = Double.parseDouble(formattedAmount);
+                } else {
+                    amount_to_show = Math.round(amount * 100.0) / 100.0;
+                }
+
+                PaymentGroup paymentGroup = databaseHelper.getPaymentGroupObj(payment_group_id);
+                User user = databaseHelper.getUser(trans_user_id);
+                User user_to_pay = databaseHelper.getUser(user_to_pay_id);
+                Transaction transaction = new Transaction(id, paymentGroup, user, user_to_pay, amount, amount_to_show);
                 transactions.add(transaction);
             } while (cursor.moveToNext());
         }
@@ -94,13 +113,11 @@ public class PaymentGroupDetailsFragment extends Fragment {
         }
 
         // Configurar el RecyclerView
-        recyclerView = view.findViewById(R.id.recyclerViewPayments);
+        recyclerView = view.findViewById(R.id.recyclerViewTransactions);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         adapter = new TransactionDetailsAdapter(transactions);
         recyclerView.setAdapter(adapter);
 
-
-
-
-
+        return view;
     }
+}

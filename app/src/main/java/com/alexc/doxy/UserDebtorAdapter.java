@@ -39,15 +39,15 @@ public class UserDebtorAdapter extends RecyclerView.Adapter<UserDebtorAdapter.Vi
             usernameTextView = itemView.findViewById(R.id.usernameCardDebtor);
             amountTextView = itemView.findViewById(R.id.textViewAmountDebtFromPayment);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION && itemClickListener != null) {
-                        itemClickListener.onUserDebtorClick(relUserPList.get(position));
-                    }
-                }
-            });
+//            itemView.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    int position = getAdapterPosition();
+//                    if (position != RecyclerView.NO_POSITION && itemClickListener != null) {
+//                        itemClickListener.onUserDebtorClick(relUserPList.get(position));
+//                    }
+//                }
+//            });
         }
     }
 
@@ -62,7 +62,7 @@ public class UserDebtorAdapter extends RecyclerView.Adapter<UserDebtorAdapter.Vi
     public void onBindViewHolder(@NonNull UserDebtorAdapter.ViewHolder holder, int position) {
         UserDebtor userDebtor = relUserPList.get(position);
         holder.usernameTextView.setText(userDebtor.getUsername());
-        holder.amountTextView.setText(Double.toString(userDebtor.getAmount()));
+        holder.amountTextView.setText(Double.toString(userDebtor.getAmount()) + "€");
     }
 
     @Override

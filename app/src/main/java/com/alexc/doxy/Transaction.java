@@ -6,13 +6,15 @@ public class Transaction {
     private User user;
     private User user_to_pay;
     private double amount;
+    private double amount_to_show;
 
-    public Transaction(int id, PaymentGroup payment_group, User user, User user_to_pay, double amount) {
+    public Transaction(int id, PaymentGroup payment_group, User user, User user_to_pay, double amount, double amount_to_show) {
         this.id = id;
         this.payment_group = payment_group;
         this.user = user;
         this.user_to_pay = user_to_pay;
         this.amount = amount;
+        this.amount_to_show = amount_to_show;
     }
 
     public int getId() {
@@ -53,5 +55,13 @@ public class Transaction {
 
     public void setAmount(double amount) {
         this.amount = amount;
+    }
+
+    public double getAmount_to_show() {
+        return amount_to_show;
+    }
+
+    public void setAmount_to_show(double amount_to_show) {
+        this.amount_to_show = amount_to_show;
     }
 }

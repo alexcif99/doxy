@@ -61,7 +61,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         Transaction transactionDebtor = relTransactionPList.get(position);
         holder.usernameTextView.setText(transactionDebtor.getUser_to_pay().getUsername());
         holder.paymentGroupTextView.setText(transactionDebtor.getPayment_group().getTitle());
-        holder.amountTextView.setText(Double.toString(transactionDebtor.getAmount()));
+        holder.amountTextView.setText(Double.toString(transactionDebtor.getAmount_to_show()) + "€");
     }
 
     @Override
