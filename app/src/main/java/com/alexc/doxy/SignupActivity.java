@@ -54,7 +54,7 @@ public class SignupActivity extends AppCompatActivity{
                         Toast.makeText(SignupActivity.this, "El usuario ya existe", Toast.LENGTH_SHORT).show();
                     } else {
                         // todo: posar try chatch a aqust tipus de funcions??
-                        databaseHelper.addUser(name, surname, username, email, password);
+                        databaseHelper.addUser(name, surname, username, email, password, null);
                         Toast.makeText(SignupActivity.this, "Cuenta creada exitosamente", Toast.LENGTH_SHORT).show();
                         finish(); // Cerrar la actividad de registro después de crear la cuenta
                         Intent intent = new Intent(SignupActivity.this, LoginActivity.class);

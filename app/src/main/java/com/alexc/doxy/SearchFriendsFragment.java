@@ -58,8 +58,6 @@ public class SearchFriendsFragment extends Fragment implements UserAddFriendAdap
         searchAdapter = new UserAddFriendAdapter(searchResultsList, this);
         recyclerViewSearch.setAdapter(searchAdapter);
 
-        // Otros métodos y lógica del fragmento
-
         return view;
     }
 
@@ -81,12 +79,19 @@ public class SearchFriendsFragment extends Fragment implements UserAddFriendAdap
             public void onClick(DialogInterface dialog, int which) {
                 SharedPreferences sharedPreferences = requireContext().getSharedPreferences("DoxyPrefs", Context.MODE_PRIVATE);
                 String stringUserId = sharedPreferences.getString("userId", "");
-                databaseHelper.addFriend(user.getId(), Integer.parseInt(stringUserId));
-                FriendsListFragment friendsListFragment = (FriendsListFragment) getParentFragmentManager().findFragmentByTag("FriendsListFragment");
-                if (friendsListFragment != null) {
-                    friendsListFragment.addFriend(user);
+                int currentUserId = Integer.parseInt(stringUserId);
+
+                // Verificar si el ID del usuario es el mismo que el ID del usuario actual
+                if (user.getId() == currentUserId) {
+                    Toast.makeText(requireContext(), "Error: No puedes añadirte a ti mismo como amigo", Toast.LENGTH_SHORT).show();
+                } else {
+                    databaseHelper.addFriend(user.getId(), currentUserId);
+                    FriendsListFragment friendsListFragment = (FriendsListFragment) getParentFragmentManager().findFragmentByTag("FriendsListFragment");
+                    if (friendsListFragment != null) {
+                        friendsListFragment.addFriend(user);
+                    }
+                    Toast.makeText(requireContext(), "Usuario agregado como amigo", Toast.LENGTH_SHORT).show();
                 }
-                Toast.makeText(requireContext(), "Usuario agregado como amigo", Toast.LENGTH_SHORT).show();
             }
         });
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -98,9 +103,9 @@ public class SearchFriendsFragment extends Fragment implements UserAddFriendAdap
         builder.create().show();
     }
 
+
     @Override
     public void onUserClick(User user) {
-        // Aquí muestras el cuadro de diálogo o realizas la acción necesaria con el usuario seleccionado
         showAddFriendDialog(user);
     }
 }

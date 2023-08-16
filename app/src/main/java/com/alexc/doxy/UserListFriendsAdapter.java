@@ -4,6 +4,12 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Shader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +25,7 @@ public class UserListFriendsAdapter extends RecyclerView.Adapter<UserListFriends
 
     private List<User> userList;
     private OnUserClickListener itemClickListener;
+    private DatabaseHelper databaseHelper;
 
     public interface OnUserClickListener  {
         void onFriendClick(User user);
@@ -35,10 +42,12 @@ public class UserListFriendsAdapter extends RecyclerView.Adapter<UserListFriends
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView usernameSimpleUserTextView;
+        private ImageView profileImageSimpleUserImageView;
 
         public ViewHolder(View itemView) {
             super(itemView);
             usernameSimpleUserTextView = itemView.findViewById(R.id.usernameSimpleUserTextView);
+            profileImageSimpleUserImageView = itemView.findViewById(R.id.profileImageSimpleUserImageView);
 
             usernameSimpleUserTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -63,6 +72,16 @@ public class UserListFriendsAdapter extends RecyclerView.Adapter<UserListFriends
     public void onBindViewHolder(@NonNull UserListFriendsAdapter.ViewHolder holder, int position) {
         User user = userList.get(position);
         holder.usernameSimpleUserTextView.setText(user.getUsername());
+        holder.profileImageSimpleUserImageView.setImageBitmap(user.getRoundedImageProfile());
+//        byte[] profileImageBytes = databaseHelper.getProfileImage(user.getId());
+//        if (profileImageBytes != null) {
+//            Bitmap profileBitmap = BitmapFactory.decodeByteArray(profileImageBytes, 0, profileImageBytes.length);
+//            Bitmap roundedBitmap = getRoundedBitmap(profileBitmap);
+//            holder.profileImageSimpleUserImageView.setImageBitmap(roundedBitmap);
+//        } else {
+//            holder.profileImageSimpleUserImageView.setImageResource(R.drawable.ic_profile);
+//        }
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -71,6 +90,23 @@ public class UserListFriendsAdapter extends RecyclerView.Adapter<UserListFriends
                 }
             }
         });
+    }
+
+    private Bitmap getRoundedBitmap(Bitmap bitmap) {
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        int diameter = Math.min(width, height);
+
+        BitmapShader shader = new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setShader(shader);
+
+        Bitmap roundedBitmap = Bitmap.createBitmap(diameter, diameter, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(roundedBitmap);
+        canvas.drawCircle(diameter / 2f, diameter / 2f, diameter / 2f, paint);
+
+        return roundedBitmap;
     }
 
     @Override

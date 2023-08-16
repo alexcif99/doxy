@@ -15,9 +15,19 @@ import java.util.List;
 public class UserDebtorAdapter extends RecyclerView.Adapter<UserDebtorAdapter.ViewHolder>{
 
     private List<UserDebtor> relUserPList;
+    private OnUserDebtorClickListener itemClickListener;
 
-    public UserDebtorAdapter(List<UserDebtor> relUserPList) {
+    public interface OnUserDebtorClickListener {
+        void onUserDebtorClick(UserDebtor userDebtor);
+    }
+
+    public void setOnUserDebtorClickListener(OnUserDebtorClickListener listener) {
+        this.itemClickListener = listener;
+    }
+
+    public UserDebtorAdapter(List<UserDebtor> relUserPList, UserDebtorAdapter.OnUserDebtorClickListener listener) {
         this.relUserPList = relUserPList;
+        this.itemClickListener = listener;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -28,6 +38,16 @@ public class UserDebtorAdapter extends RecyclerView.Adapter<UserDebtorAdapter.Vi
             super(itemView);
             usernameTextView = itemView.findViewById(R.id.usernameCardDebtor);
             amountTextView = itemView.findViewById(R.id.textViewAmountDebtFromPayment);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION && itemClickListener != null) {
+                        itemClickListener.onUserDebtorClick(relUserPList.get(position));
+                    }
+                }
+            });
         }
     }
 

@@ -34,6 +34,14 @@ public class LoginActivity extends AppCompatActivity {
         // Crear una instancia de DatabaseHelper
         databaseHelper = new DatabaseHelper(this);
 
+        if (databaseHelper.isUserTableEmpty()){
+            databaseHelper.addUser("a", "a", "a", "a", "a", null);
+            databaseHelper.addUser("b", "b", "b", "b", "b", null);
+            databaseHelper.addUser("c", "c", "c", "c", "c", null);
+            databaseHelper.addFriend(1, 2);
+            databaseHelper.addFriend(1, 3);
+        }
+
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

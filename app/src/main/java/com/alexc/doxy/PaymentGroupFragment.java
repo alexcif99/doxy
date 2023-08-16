@@ -2,13 +2,10 @@ package com.alexc.doxy;
 
 import static com.alexc.doxy.DatabaseHelper.PAYMENT_AMOUNT;
 import static com.alexc.doxy.DatabaseHelper.PAYMENT_DESCRIPTION;
-import static com.alexc.doxy.DatabaseHelper.PAYMENT_GROUP_DESCRIPTION;
-import static com.alexc.doxy.DatabaseHelper.PAYMENT_GROUP_TITLE;
 import static com.alexc.doxy.DatabaseHelper.PAYMENT_ID;
 import static com.alexc.doxy.DatabaseHelper.PAYMENT_TITLE;
 import static com.alexc.doxy.DatabaseHelper.PAYMENT_USER_OWNER_ID;
 
-import static java.lang.Integer.parseInt;
 import static java.sql.DriverManager.println;
 
 import android.annotation.SuppressLint;
@@ -21,9 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -31,12 +25,15 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 
 public class PaymentGroupFragment extends Fragment {
     private TextView textViewTitle;
     private TextView textViewDescription;
-    private Button buttonAddPayment;
+    private FloatingActionButton buttonAddPayment;
+    private FloatingActionButton goToDetails;
     private DatabaseHelper databaseHelper;
     private RecyclerView recyclerView;
     private PaymentAdapter adapter;
@@ -71,7 +68,8 @@ public class PaymentGroupFragment extends Fragment {
 
         textViewTitle = view.findViewById(R.id.textViewPaymentGroupTitle);
         textViewDescription = view.findViewById(R.id.textViewPaymentGroupDescription);
-        buttonAddPayment = view.findViewById(R.id.buttonCreatePayment);
+        buttonAddPayment = view.findViewById(R.id.goToCreatePayment);
+        goToDetails = view.findViewById(R.id.goToDetails);
 
         Bundle args = getArguments();
         if (args != null) {
@@ -100,10 +98,6 @@ public class PaymentGroupFragment extends Fragment {
 
                 Payment payment = new Payment(id, title, description, amount, owner);
                 payments.add(payment);
-
-                // Actualizar las vistas con los datos obtenidos
-//                textViewTitle.setText(title);
-//                textViewDescription.setText(description);
             } while (cursor.moveToNext());
         }
         if (cursor != null) {
@@ -138,6 +132,20 @@ public class PaymentGroupFragment extends Fragment {
                 FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.nav_host_fragment, createPaymentFragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+            }
+        });
+
+        goToDetails.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle args = getArguments();
+                Integer paymentGroupId = args.getInt("paymentGroupId");
+                CreatePaymentFragment createPaymentFragment = CreatePaymentFragment.newInstance(paymentGroupId);
+                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.nav_host_fragment, paymentGroupDetailsFragment);
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
             }

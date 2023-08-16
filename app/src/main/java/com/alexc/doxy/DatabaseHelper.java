@@ -1,6 +1,7 @@
 package com.alexc.doxy;
 
 import static java.sql.DriverManager.println;
+import static java.sql.Types.NULL;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
@@ -8,14 +9,18 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     //General
     private static final String DATABASE_NAME = "doxy_db";
-    private static final int DATABASE_VERSION = 14;
+    private static final int DATABASE_VERSION = 36;
+    private Context context;
 
     // User
     public static final String TABLE_USER = "user";
@@ -25,6 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String USER_USERNAME = "username";
     public static final String USER_EMAIL = "email";
     public static final String USER_PASSWORD = "password";
+    public static final String USER_PROFILE_IMAGE = "profile_image";
 
     //Payment
     public static final String TABLE_PAYMENT = "payment";
@@ -49,6 +55,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String REL_USER_PG_USER_ID = "user_id";
     public static final String REL_USER_PG_AMOUNT = "amount";
 
+    //Transaction
+    public static final String TABLE_TRANSACTIONS = "transactions";
+    public static final String TRANSACTION_ID = "id";
+    public static final String TRANSACTION_USER_ID = "user_id";
+    public static final String TRANSACTION_USERTO_PAY_ID = "user_to_pay_id";
+    public static final String TRANSACTION_PAYMENT_GROUP_ID = "payment_group_id";
+    public static final String TRANSACTION_AMOUNT = "amount";
+
     //Relaion User - Payment
     public static final String TABLE_REL_USER_P = "rel_user_payment";
     public static final String REL_USER_P_ID = "id";
@@ -59,11 +73,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //Friend
     public static final String TABLE_FRIENDS = "friends";
+    public static final String FRIEND_ID = "id";
     public static final String FRIEND_USER_ID = "user_id";
-    public static final String FRIEND_ID = "friend_id";
+    public static final String FRIEND_FRIEND_ID = "friend_id";
+
+    //Grouped Paymens
+    public static final String TABLE_GROUPED_PAYMENTS = "grouped_payments";
+    public static final String GROUPED_PAYMENT_ID = "id";
+    public static final String GROUPED_PAYMENT_AMOUNT = "amount";
+    
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
     }
 
     @Override
@@ -75,9 +97,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 USER_SURNAME + " TEXT," +
                 USER_USERNAME + " TEXT," +
                 USER_EMAIL + " TEXT," +
-                USER_PASSWORD + " TEXT" +
+                USER_PASSWORD + " TEXT," +
+                USER_PROFILE_IMAGE + " BLOB" +
                 ")";
         db.execSQL(createUserTableQuery );
+        // PaymentGroup
+        String createPaymentGroupTableQuery = "CREATE TABLE " + TABLE_PAYMENT_GROUP + "(" +
+                PAYMENT_GROUP_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                PAYMENT_GROUP_TITLE + " TEXT," +
+                PAYMENT_GROUP_DESCRIPTION + " TEXT" +
+                ")";
+        db.execSQL(createPaymentGroupTableQuery);
         // Payment
         String createPaymentTableQuery = "CREATE TABLE " + TABLE_PAYMENT + "(" +
                 PAYMENT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -93,13 +123,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 TABLE_PAYMENT_GROUP + "(" + PAYMENT_GROUP_ID + ")" +
                 ")";
         db.execSQL(createPaymentTableQuery);
-        // PaymentGroup
-        String createPaymentGroupTableQuery = "CREATE TABLE " + TABLE_PAYMENT_GROUP + "(" +
-                PAYMENT_GROUP_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                PAYMENT_GROUP_TITLE + " TEXT," +
-                PAYMENT_GROUP_DESCRIPTION + " TEXT" +
-                ")";
-        db.execSQL(createPaymentGroupTableQuery);
         // Relation Payment group - User
         String createRelUserPgTable = "CREATE TABLE " + TABLE_REL_USER_PG + "(" +
                 REL_USER_PG_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -129,28 +152,54 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String createTableFriends = "CREATE TABLE " + TABLE_FRIENDS + "(" +
                 FRIEND_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 FRIEND_USER_ID + " INTEGER," +
+                FRIEND_FRIEND_ID + " INTEGER," +
                 "FOREIGN KEY (" + FRIEND_USER_ID + ") REFERENCES " +
                 TABLE_USER + "(" + USER_ID + ")" +
                 ")";
         db.execSQL(createTableFriends);
+        // Transaction
+        String createTransactionTable = "CREATE TABLE " + TABLE_TRANSACTIONS + "(" +
+                TRANSACTION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                TRANSACTION_USER_ID + " INTEGER," +
+                TRANSACTION_USERTO_PAY_ID + " INTEGER," +
+                TRANSACTION_PAYMENT_GROUP_ID + " INTEGER," +
+                TRANSACTION_AMOUNT + " DOUBLE," +
+                "FOREIGN KEY (" + TRANSACTION_PAYMENT_GROUP_ID + ") REFERENCES " +
+                TABLE_PAYMENT_GROUP + "(" + PAYMENT_GROUP_ID + ")," +
+                "FOREIGN KEY (" + TRANSACTION_USER_ID + ") REFERENCES " +
+                TABLE_USER + "(" + USER_ID + ")," +
+                "FOREIGN KEY (" + TRANSACTION_USERTO_PAY_ID + ") REFERENCES " +
+                TABLE_USER + "(" + USER_ID + ")" +
+                ")";
+        db.execSQL(createTransactionTable);
+
+//        if (isUserTableEmpty(db)) {
+//            addUser("a", "a", "a", "a", "a", null);
+//            addUser("b", "b", "b", "b", "b", null);
+//            addUser("c", "c", "c", "c", "c", null);
+//            addFriend(1, 2);
+//            addFriend(1, 3);
+//        }
+
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_REL_USER_PG);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_REL_USER_P);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_GROUPED_PAYMENTS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRANSACTIONS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_FRIENDS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PAYMENT);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PAYMENT_GROUP);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_FRIENDS);
         db.execSQL("DROP TABLE IF EXISTS " + "payment_group_user_relation");
-
         onCreate(db);
     }
 
     // USER ----------------------------------------------------------------------------------------
-    public long addUser(String name, String surname, String username, String email, String password) {
-        SQLiteDatabase db = this.getReadableDatabase();
+    public long addUser(String name, String surname, String username, String email, String password, Bitmap profileImage) {
+        SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(USER_NAME, name);
         values.put(USER_SURNAME, surname);
@@ -158,8 +207,38 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(USER_EMAIL, email);
         values.put(USER_PASSWORD, password);
 
+        // Convertir la imagen Bitmap en un array de bytes (byte[])
+        if (profileImage != null) {
+            byte[] imageBytes = convertBitmapToByteArray(profileImage);
+            values.put(USER_PROFILE_IMAGE, imageBytes);
+        } else {
+            // Si no se proporciona una imagen, guardar la imagen de perfil por defecto
+            Bitmap defaultProfileImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_foto_user_default);
+            byte[] imageBytes = convertBitmapToByteArray(defaultProfileImage);
+            values.put(USER_PROFILE_IMAGE, imageBytes);
+        }
+
         return db.insert(TABLE_USER, null, values);
     }
+
+    public boolean isUserTableEmpty() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String countQuery = "SELECT COUNT(*) FROM " + TABLE_USER;
+        Cursor cursor = db.rawQuery(countQuery, null);
+        int count = 0;
+        if (cursor != null && cursor.moveToFirst()) {
+            count = cursor.getInt(0);
+            cursor.close();
+        }
+        return count == 0;
+    }
+
+    private byte[] convertBitmapToByteArray(Bitmap bitmap) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+        return byteArrayOutputStream.toByteArray();
+    }
+
 
     @SuppressLint("Range")
     public int isUserValid(String email, String password) {
@@ -172,7 +251,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 //        cursor.close();
 //        db.close();
 //        return isValid;
-        int userId = -1; // Valor predeterminado en caso de que no se encuentre el usuario
+        int userId = 0; // Valor predeterminado en caso de que no se encuentre el usuario
         if (cursor.moveToFirst()) {
             userId = cursor.getInt(cursor.getColumnIndex(USER_ID));
         }
@@ -207,11 +286,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             String surname = cursor.getString(cursor.getColumnIndex(USER_SURNAME));
             String username = cursor.getString(cursor.getColumnIndex(USER_USERNAME));
             String email = cursor.getString(cursor.getColumnIndex(USER_EMAIL));
+//            byte[] profileImageByteArray = cursor.getBlob(cursor.getColumnIndex(USER_PROFILE_IMAGE));
+//            Bitmap profileImage = byteArrayToBitmap(profileImageByteArray);
 
             user = new User(userId, name, surname, username, email, Boolean.FALSE);
         }
-
-        // Cerrar el cursor y la base de datos
         if (cursor != null) {
             cursor.close();
         }
@@ -220,10 +299,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return user;
     }
 
+    public static Bitmap byteArrayToBitmap(byte[] byteArray) {
+        return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+    }
+
     public Cursor getUsers() {
         SQLiteDatabase db = this.getReadableDatabase();
         String[] columns = {USER_ID, USER_NAME, USER_SURNAME, USER_USERNAME, USER_EMAIL};
         return db.query(TABLE_USER, columns, null, null, null, null, null);
+    }
+
+    public void saveProfileImage(int userId, byte[] imageBytes) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(USER_PROFILE_IMAGE, imageBytes);
+        db.update(TABLE_USER, values, USER_ID + " = ?", new String[]{String.valueOf(userId)});
+        db.close();
+    }
+
+    @SuppressLint("Range")
+    public byte[] getProfileImage(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_USER, new String[]{USER_PROFILE_IMAGE}, USER_ID + " = ?",
+                new String[]{String.valueOf(userId)}, null, null, null);
+        byte[] imageBytes = null;
+        if (cursor != null && cursor.moveToFirst()) {
+            imageBytes = cursor.getBlob(cursor.getColumnIndex(USER_PROFILE_IMAGE));
+            cursor.close();
+        }
+        db.close();
+        return imageBytes;
     }
 
     // PAYMENT -------------------------------------------------------------------------------------
@@ -236,9 +341,31 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(PAYMENT_IS_PAID, is_paid);
         values.put(PAYMENT_USER_OWNER_ID, userOwnerId);
         values.put(PAYMENT_PAYMENT_GROUP_ID, paymentGroupId);
-
         return db.insert(TABLE_PAYMENT, null, values);
     }
+
+    public Payment getPayment(int paymentId) {
+        SQLiteDatabase db = getReadableDatabase();
+        String[] columns = {PAYMENT_TITLE, PAYMENT_DESCRIPTION, PAYMENT_USER_OWNER_ID, PAYMENT_AMOUNT};
+        String selection = PAYMENT_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(paymentId)};
+
+        Cursor cursor = db.query(TABLE_PAYMENT, columns, selection, selectionArgs, null, null, null);
+
+        Payment payment = null;
+        if (cursor != null && cursor.moveToFirst()) {
+//            @SuppressLint("Range") int paymentGroupId = cursor.getInt(cursor.getColumnIndex(PAYMENT_PAYMENT_GROUP_ID));
+            @SuppressLint("Range") String title = cursor.getString(cursor.getColumnIndex(PAYMENT_TITLE));
+            @SuppressLint("Range") String description = cursor.getString(cursor.getColumnIndex(PAYMENT_DESCRIPTION));
+            @SuppressLint("Range") double amount = cursor.getDouble(cursor.getColumnIndex(PAYMENT_AMOUNT));
+            @SuppressLint("Range") int ownerUserId = cursor.getInt(cursor.getColumnIndex(PAYMENT_USER_OWNER_ID));
+            payment = new Payment(paymentId, title, description, amount, ownerUserId);
+            cursor.close();
+        }
+
+        return payment;
+    }
+
 
     public Cursor getPayments(Integer paymentGroupId) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -255,6 +382,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String[] columns = {PAYMENT_ID, PAYMENT_TITLE, PAYMENT_DESCRIPTION, PAYMENT_AMOUNT, PAYMENT_USER_OWNER_ID};
         return db.query(TABLE_PAYMENT, columns, selection, selectionArgs, null, null, null);
     }
+
+    public Integer getPaymentGroupFromPaymentId(int paymentId) {
+        SQLiteDatabase db = getReadableDatabase();
+        String[] columns = {PAYMENT_PAYMENT_GROUP_ID};
+        String selection = PAYMENT_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(paymentId)};
+
+        Cursor cursor = db.query(TABLE_PAYMENT, columns, selection, selectionArgs, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            @SuppressLint("Range") int groupId = cursor.getInt(cursor.getColumnIndex(PAYMENT_PAYMENT_GROUP_ID));
+            return groupId;
+        }
+
+        return null;
+    }
+
 
     // todo: interessaria obtenir la suma de getPaymentsFromUserOwner
 
@@ -283,6 +427,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.query(TABLE_PAYMENT_GROUP, columns, selection, selectionArgs, null, null, null);
     }
 
+    public PaymentGroup getPaymentGroupObj(int paymentGroupId) {
+        SQLiteDatabase db = getReadableDatabase();
+        String[] columns = {PAYMENT_GROUP_ID, PAYMENT_GROUP_TITLE, PAYMENT_GROUP_DESCRIPTION};
+        String selection = PAYMENT_GROUP_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(paymentGroupId)};
+
+        Cursor cursor = db.query(TABLE_PAYMENT_GROUP, columns, selection, selectionArgs, null, null, null);
+
+        PaymentGroup paymentGroup = null;
+
+        if (cursor != null && cursor.moveToFirst()) {
+            @SuppressLint("Range") int groupId = cursor.getInt(cursor.getColumnIndex(PAYMENT_GROUP_ID));
+            @SuppressLint("Range") String title = cursor.getString(cursor.getColumnIndex(PAYMENT_GROUP_TITLE));
+            @SuppressLint("Range") String description = cursor.getString(cursor.getColumnIndex(PAYMENT_GROUP_DESCRIPTION));
+
+            paymentGroup = new PaymentGroup(groupId, title, description);
+
+            cursor.close();
+        }
+
+        return paymentGroup;
+    }
+
+
 
     //USER - PG RELATION ---------------------------------------------------------------------------
     public long addRelUserPg(long paymentGroupId, long userId, double amount) {
@@ -296,13 +464,41 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // todo: no se que interesa retornar, si id o id + nom, depen del que es necessiti per fer la Card o si s'ha de crear un User
-    public Cursor getUsersFromPG(Integer paymentGroupId, int currentUserId) {
+    public Cursor getUsersFromPG(Integer paymentGroupId) {
         SQLiteDatabase db = getReadableDatabase();
         String[] columns = {REL_USER_PG_USER_ID};
-        String selection = REL_USER_PG_PAYMENT_GROUP_ID + " = ? AND " + REL_USER_PG_USER_ID + " != ?";
-        String[] selectionArgs = {String.valueOf(paymentGroupId), String.valueOf(currentUserId)};
+        String selection = REL_USER_PG_PAYMENT_GROUP_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(paymentGroupId)};
         return db.query(TABLE_REL_USER_PG, columns, selection, selectionArgs, null, null, null);
     }
+
+    @SuppressLint("Range")
+    public Cursor getAmountRelUserPG(int paymentGroupId, int userId) {
+        SQLiteDatabase db = getReadableDatabase();
+        String[] columns = {REL_USER_PG_AMOUNT};
+        String selection = REL_USER_PG_PAYMENT_GROUP_ID + " = ? AND " + REL_USER_PG_USER_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(paymentGroupId), String.valueOf(userId)};
+        return db.query(TABLE_REL_USER_PG, columns, selection, selectionArgs, null, null, null);
+    }
+
+    @SuppressLint("Range")
+    public double getDoubleAmountRelUserPG(int paymentGroupId, int userId) {
+        SQLiteDatabase db = getReadableDatabase();
+        String[] columns = {REL_USER_PG_AMOUNT};
+        String selection = REL_USER_PG_PAYMENT_GROUP_ID + " = ? AND " + REL_USER_PG_USER_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(paymentGroupId), String.valueOf(userId)};
+
+        Cursor cursor = db.query(TABLE_REL_USER_PG, columns, selection, selectionArgs, null, null, null);
+
+        double amount = 0.0;
+        if (cursor != null && cursor.moveToFirst()) {
+            amount = cursor.getDouble(cursor.getColumnIndex(REL_USER_PG_AMOUNT));
+            cursor.close();
+        }
+
+        return amount;
+    }
+
 
     public Cursor getPaymentGroups(Integer userId) {
         SQLiteDatabase db = getReadableDatabase();
@@ -316,6 +512,72 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.rawQuery(query, selectionArgs);
     }
 
+    public void addAmountRelUserPG(int paymentGroupId, int userId, double amount, double oldAmount) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(REL_USER_PG_AMOUNT, oldAmount + amount);
+        db.update(TABLE_REL_USER_PG, values,
+                REL_USER_PG_PAYMENT_GROUP_ID + " = ? AND " + REL_USER_PG_USER_ID + " = ?",
+                new String[]{String.valueOf(paymentGroupId), String.valueOf(userId)});
+    }
+
+    // Método para restar la cantidad al registro con el mismo paymentGroupId y userId
+    public void subtractAmountRelUserPG(int paymentGroupId, int userId, double amount, double oldAmount) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(REL_USER_PG_AMOUNT, oldAmount - amount);
+        db.update(TABLE_REL_USER_PG, values,
+                REL_USER_PG_PAYMENT_GROUP_ID + " = ? AND " + REL_USER_PG_USER_ID + " = ?",
+                new String[]{String.valueOf(paymentGroupId), String.valueOf(userId)});
+    }
+
+    // Método para obtener el monto actual del registro con el mismo paymentGroupId y userId
+//    @SuppressLint("Range")
+//    private double getAmountRelUserPG(int paymentGroupId, int userId) {
+//        double amount = 0;
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        Cursor cursor = db.query(TABLE_REL_USER_PG,
+//                new String[]{REL_USER_PG_AMOUNT},
+//                REL_USER_PG_PAYMENT_GROUP_ID + " = ? AND " + REL_USER_PG_USER_ID + " = ?",
+//                new String[]{String.valueOf(paymentGroupId), String.valueOf(userId)},
+//                null, null, null, null);
+//        if (cursor != null) {
+//            if (cursor.moveToFirst()) {
+//                amount = cursor.getDouble(cursor.getColumnIndex(REL_USER_PG_AMOUNT));
+//            }
+//            cursor.close();
+//        }
+//        return amount;
+//    }
+
+    public Cursor getRelUserPGPositiveAmount(Integer payment_group_id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {REL_USER_PG_USER_ID, REL_USER_PG_AMOUNT};
+        String selection = REL_USER_PG_PAYMENT_GROUP_ID + " = ? AND " + REL_USER_PG_AMOUNT + " >= 0";
+        String[] selectionArgs = {String.valueOf(payment_group_id)};
+        Cursor cursor = db.query(TABLE_REL_USER_PG, columns, selection, selectionArgs, null, null, null);
+        return cursor;
+    }
+
+    public Cursor getRelUserPGNegativeAmount(Integer payment_group_id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {REL_USER_PG_USER_ID, REL_USER_PG_AMOUNT};
+        String selection = REL_USER_PG_PAYMENT_GROUP_ID + " = ? AND " + REL_USER_PG_AMOUNT + " < 0";
+        String[] selectionArgs = {String.valueOf(payment_group_id)};
+        Cursor cursor = db.query(TABLE_REL_USER_PG, columns, selection, selectionArgs, null, null, null);
+        return cursor;
+    }
+
+//    public void makePaymentPayment(Integer ownwer_user_id, Integer paymentGroupId, Double amount, Double oldAmount) {
+//        SQLiteDatabase db = this.getWritableDatabase();
+//        ContentValues values = new ContentValues();
+//        values.put(REL_USER_PG_AMOUNT, oldAmount - amount);
+//        db.update(TABLE_REL_USER_PG, values,
+//                REL_USER_PG_PAYMENT_GROUP_ID + " = ? AND " + REL_USER_PG_USER_ID + " = ?",
+//                new String[]{String.valueOf(paymentGroupId), String.valueOf(ownwer_user_id)});
+//
+//    }
+
     //USER - PAYMENT RELATION ----------------------------------------------------------------------
     public long addRelUserP(long userId, long paymentId, double amount, boolean is_paid) {
         SQLiteDatabase db = getReadableDatabase();
@@ -324,7 +586,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(REL_USER_P_PAYMENT_ID, paymentId);
         values.put(REL_USER_P_AMOUNT, amount);  // Quantitat que deu respecte el total del pagament
         values.put(REL_USER_P_IS_PAID, is_paid);
-
         return db.insert(TABLE_REL_USER_P, null, values);
     }
 
@@ -335,6 +596,53 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String[] selectionArgs = {String.valueOf(paymentId)};
         return db.query(TABLE_REL_USER_P, columns, selection, selectionArgs, null, null, null);
     }
+
+    public Cursor getUsersDebenFromP(Integer paymentId) {
+        SQLiteDatabase db = getReadableDatabase();
+        String[] columns = {REL_USER_P_ID, REL_USER_P_USER_ID, REL_USER_P_PAYMENT_ID, REL_USER_P_AMOUNT};
+        String selection = REL_USER_P_PAYMENT_ID + " = ? AND " + REL_USER_P_IS_PAID + " = 0";
+        String[] selectionArgs = {String.valueOf(paymentId)};
+        return db.query(TABLE_REL_USER_P, columns, selection, selectionArgs, null, null, null);
+    }
+
+    public Cursor getUsersYaPagadosFromP(Integer paymentId) {
+        SQLiteDatabase db = getReadableDatabase();
+        String[] columns = {REL_USER_P_ID, REL_USER_P_USER_ID, REL_USER_P_PAYMENT_ID, REL_USER_P_AMOUNT};
+        String selection = REL_USER_P_PAYMENT_ID + " = ? AND " + REL_USER_P_IS_PAID + " = 1";
+        String[] selectionArgs = {String.valueOf(paymentId)};
+        return db.query(TABLE_REL_USER_P, columns, selection, selectionArgs, null, null, null);
+    }
+
+    @SuppressLint("Range")
+    public double getAmountFromRelUserP(int userId, int paymentId) {
+        SQLiteDatabase db = getReadableDatabase();
+        String[] columns = {REL_USER_P_AMOUNT};
+        String selection = REL_USER_P_USER_ID + " = ? AND " + REL_USER_P_PAYMENT_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(userId), String.valueOf(paymentId)};
+
+        Cursor cursor = db.query(TABLE_REL_USER_P, columns, selection, selectionArgs, null, null, null);
+
+        double amount = 0.0;
+        if (cursor != null && cursor.moveToFirst()) {
+            amount = cursor.getDouble(cursor.getColumnIndex(REL_USER_P_AMOUNT));
+            cursor.close();
+        }
+
+        return amount;
+    }
+
+    public void setAsPaidRelUserP(int userId, int paymentId) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(REL_USER_P_IS_PAID, 1);
+
+        String selection = REL_USER_P_USER_ID + " = ? AND " + REL_USER_P_PAYMENT_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(userId), String.valueOf(paymentId)};
+
+        db.update(TABLE_REL_USER_P, values, selection, selectionArgs);
+    }
+
 
     //  Suma els paments d'un usuari i un payment group
     //  S'haura de fer un join amb la taula payment per mirar el grup
@@ -385,25 +693,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues valuesA = new ContentValues();
         valuesA.put(FRIEND_USER_ID, userId);
-        valuesA.put(FRIEND_ID, friendId);
+        valuesA.put(FRIEND_FRIEND_ID, friendId);
         db.insert(TABLE_FRIENDS, null, valuesA);
         ContentValues valuesB = new ContentValues();
         valuesB.put(FRIEND_USER_ID, friendId);
-        valuesB.put(FRIEND_ID, userId);
+        valuesB.put(FRIEND_FRIEND_ID, userId);
         db.insert(TABLE_FRIENDS, null, valuesB);
         db.close();
     }
 
     public void deleteFriend(int userId, int friendId) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_FRIENDS, FRIEND_USER_ID + " = ? AND " + FRIEND_ID + " = ?",
+        db.delete(TABLE_FRIENDS, FRIEND_USER_ID + " = ? AND " + FRIEND_FRIEND_ID + " = ?",
                 new String[]{String.valueOf(userId), String.valueOf(friendId)});
         db.close();
     }
 
     public Cursor getFriends(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String[] columns = {FRIEND_ID};
+        String[] columns = {FRIEND_FRIEND_ID};
         String selection = FRIEND_USER_ID + " = ?";
         String[] selectionArgs = {String.valueOf(userId)};
         return db.query(TABLE_FRIENDS, columns, selection, selectionArgs, null, null, null);
@@ -457,8 +765,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
 
         // Eliminar la relación de amistad de la tabla de amigos
-        String whereClause = "(" + FRIEND_USER_ID + " = ? AND " + FRIEND_ID + " = ?) OR " +
-                "(" + FRIEND_USER_ID + " = ? AND " + FRIEND_ID + " = ?)";
+        String whereClause = "(" + FRIEND_USER_ID + " = ? AND " + FRIEND_FRIEND_ID + " = ?) OR " +
+                "(" + FRIEND_USER_ID + " = ? AND " + FRIEND_FRIEND_ID + " = ?)";
         String[] whereArgs = {String.valueOf(userId), String.valueOf(friendId),
                 String.valueOf(friendId), String.valueOf(userId)};
 
@@ -466,7 +774,43 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    // TRANSACTION ---------------------------------------------------------------------------------
+    // Método para insertar una transacción en la tabla de transacciones
+    public long addTransaction(int paymentGroupId, int creditorId, int debtorId, double amount) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(TRANSACTION_PAYMENT_GROUP_ID, paymentGroupId);
+        values.put(TRANSACTION_USER_ID, debtorId);
+        values.put(TRANSACTION_USERTO_PAY_ID, creditorId);
+        values.put(TRANSACTION_AMOUNT, amount);
+        long transactionId = db.insert(TABLE_TRANSACTIONS, null, values);
+        db.close();
+        return transactionId;
+    }
 
+    public void deleteAllTransactions(int paymentGroupId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_TRANSACTIONS, TRANSACTION_PAYMENT_GROUP_ID + " = ?", new String[]{String.valueOf(paymentGroupId)});
+        db.close();
+    }
+
+    public Cursor getDebesTransactions(int userId){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {TRANSACTION_ID, TRANSACTION_PAYMENT_GROUP_ID, TRANSACTION_USERTO_PAY_ID, TRANSACTION_AMOUNT};
+        String selection = TRANSACTION_USER_ID + " = ? AND " + TRANSACTION_AMOUNT + " > 0"; //todo: fer que isPaid = 0
+        String[] selectionArgs = {String.valueOf(userId)};
+        return db.query(TABLE_TRANSACTIONS, columns, selection, selectionArgs, null, null, null);
+
+    }
+
+    public Cursor getTedebenTransactions(int userId){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {TRANSACTION_ID, TRANSACTION_PAYMENT_GROUP_ID, TRANSACTION_USER_ID, TRANSACTION_AMOUNT};
+        String selection = TRANSACTION_USERTO_PAY_ID + " = ? AND " + TRANSACTION_AMOUNT + " > 0"; //todo: fer que isPaid = 0
+        String[] selectionArgs = {String.valueOf(userId)};
+        return db.query(TABLE_TRANSACTIONS, columns, selection, selectionArgs, null, null, null);
+
+    }
 
 
 }

@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.alexc.doxy"
-        minSdk 21
+        minSdkVersion 26
         targetSdk 32
         versionCode 1
         versionName "1.0"
@@ -26,7 +26,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-}
+} 
 
 dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0'

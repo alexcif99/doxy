@@ -1,5 +1,12 @@
 package com.alexc.doxy;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.RectF;
+import android.graphics.Shader;
+
 public class User {
     private int id;
     private String nombre;
@@ -8,6 +15,7 @@ public class User {
     private String email;
     private String contraseña;
     private Boolean isChecked;
+    private Bitmap profileBitmap;
 
     // Constructor
     public User(int id, String nombre, String apellido, String username, String email, Boolean isChecked) {
@@ -18,6 +26,7 @@ public class User {
         this.email = email;
         this.isChecked = isChecked;
 //        this.contraseña = contraseña;
+//        this.profileBitmap = profileBitmap;
     }
 
     // Getters y setters
@@ -75,5 +84,32 @@ public class User {
 
     public void setChecked(boolean checked) {
         isChecked = checked;
+    }
+
+    public Bitmap getRoundedImageProfile() {
+        // Verificar si la imagen es null o tiene un tamaño de 0
+        if (profileBitmap == null || profileBitmap.getWidth() == 0 || profileBitmap.getHeight() == 0) {
+            // Si la imagen es null o tiene un tamaño de 0, retornar null (o una imagen por defecto, si lo deseas)
+            return null;
+        }
+
+        // Calcular el radio del círculo para hacer la imagen redonda
+        int radius = Math.min(profileBitmap.getWidth(), profileBitmap.getHeight()) / 2;
+
+        // Crear un Bitmap para la imagen de perfil redonda
+        Bitmap roundedBitmap = Bitmap.createBitmap(profileBitmap.getWidth(), profileBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+
+        // Crear un shader para aplicar la imagen al círculo
+        BitmapShader shader = new BitmapShader(profileBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+
+        // Crear un objeto Paint para configurar el shader
+        Paint paint = new Paint();
+        paint.setShader(shader);
+
+        // Crear un objeto Canvas para dibujar la imagen de perfil redonda
+        Canvas canvas = new Canvas(roundedBitmap);
+        canvas.drawRoundRect(new RectF(0, 0, profileBitmap.getWidth(), profileBitmap.getHeight()), radius, radius, paint);
+
+        return roundedBitmap;
     }
 }

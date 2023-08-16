@@ -20,9 +20,5 @@
         android:name="com.alexc.doxy.BalanceFragment"
         android:label="fragment_balance"
         tools:layout="@layout/fragment_balance" />
-    <fragment
-        android:id="@+id/createPaymentGroupFragment"
-        android:name="com.alexc.doxy.CreatePaymentGroupFragment"
-        android:label="fragment_create_payment_group"
-        tools:layout="@layout/fragment_create_payment_group" />
+
 </navigation>

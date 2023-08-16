@@ -1,5 +1,6 @@
 package com.alexc.doxy;
 
+import static com.alexc.doxy.DatabaseHelper.FRIEND_FRIEND_ID;
 import static com.alexc.doxy.DatabaseHelper.FRIEND_ID;
 import static com.alexc.doxy.DatabaseHelper.USER_EMAIL;
 import static com.alexc.doxy.DatabaseHelper.USER_ID;
@@ -53,8 +54,6 @@ public class CreatePaymentGroupFragment extends Fragment {
         editTextDescription = rootView.findViewById(R.id.editTextDescription);
         buttonCreateGroup = rootView.findViewById(R.id.buttonCreatePaymentGroup);
 
-//        paymentGroupTableHelper = new PaymentGroupTableHelper(getActivity());
-
         // Crear una instancia de DatabaseHelper
         databaseHelper = new DatabaseHelper(this.getActivity());
 
@@ -63,11 +62,7 @@ public class CreatePaymentGroupFragment extends Fragment {
         ArrayList<User> users  = new ArrayList<>();
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                @SuppressLint("Range") int id = cursor.getInt(cursor.getColumnIndex(FRIEND_ID));
-//                @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(USER_NAME));
-//                @SuppressLint("Range") String surname = cursor.getString(cursor.getColumnIndex(USER_SURNAME));
-//                @SuppressLint("Range") String username = cursor.getString(cursor.getColumnIndex(USER_USERNAME));
-//                @SuppressLint("Range") String email = cursor.getString(cursor.getColumnIndex(USER_EMAIL));
+                @SuppressLint("Range") int id = cursor.getInt(cursor.getColumnIndex(FRIEND_FRIEND_ID));
 
                 User user = databaseHelper.getUser(id);
                 users.add(user);
@@ -106,7 +101,7 @@ public class CreatePaymentGroupFragment extends Fragment {
                     Long pg_id = databaseHelper.addPaymentGroup(title, description);
                     println("Payment grup creado: " + Long.toString(pg_id));
                     for(User checked_user : checked_users){
-                        databaseHelper.addRelUserPg(pg_id, checked_user.getId(), 0.0);
+                        databaseHelper.addRelUserPg(pg_id, checked_user.getId(),0.0);  //Passem el mateix debotr pq de moment no tindran deutes
                         checked_user.setChecked(Boolean.FALSE);
                     }
                     Toast.makeText(getActivity(), "Grupo de pago creado exitosamente", Toast.LENGTH_SHORT).show();

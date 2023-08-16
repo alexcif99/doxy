@@ -27,7 +27,6 @@ public class MainActivity extends AppCompatActivity{
     CreatePaymentGroupFragment createPaymentGroupFragment = new CreatePaymentGroupFragment();
     Fragment active = homeFragment;
 
-
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -54,9 +53,6 @@ public class MainActivity extends AppCompatActivity{
                     case R.id.nav_balance:
                         getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, balanceFragment).commit();
                         return true;
-                    case R.id.nav_create_group:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, createPaymentGroupFragment).commit();
-                        return true;
                     case R.id.nav_profile:
                         getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, profileFragment).commit();
                         return true;
@@ -69,24 +65,5 @@ public class MainActivity extends AppCompatActivity{
         });
 
     }
-
-//    @Override
-//    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//        switch (item.getItemId()){
-//            case R.id.nav_home:
-//                getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, homeFragment).commit();
-//                return true;
-//            case R.id.nav_balance:
-//                getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, balanceFragment).commit();
-//                return true;
-//            case R.id.nav_create_group:
-//                getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, createPaymentGroupFragment).commit();
-//                return true;
-//            case R.id.nav_profile:
-//                getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, profileFragment).commit();
-//                return true;
-//        }
-//        return false;
-//    }
 }
 

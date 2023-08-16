@@ -1,5 +1,6 @@
 package com.alexc.doxy;
 
+import static com.alexc.doxy.DatabaseHelper.FRIEND_FRIEND_ID;
 import static com.alexc.doxy.DatabaseHelper.FRIEND_ID;
 import static com.alexc.doxy.DatabaseHelper.USER_ID;
 
@@ -39,7 +40,7 @@ public class FriendsListFragment extends Fragment implements UserListFriendsAdap
         friendsList = new ArrayList<>();
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                @SuppressLint("Range") Integer id = cursor.getInt(cursor.getColumnIndex(FRIEND_ID));
+                @SuppressLint("Range") Integer id = cursor.getInt(cursor.getColumnIndex(FRIEND_FRIEND_ID));
                 User friend = databaseHelper.getUser(id);
                 friendsList.add(friend);
             } while (cursor.moveToNext());
