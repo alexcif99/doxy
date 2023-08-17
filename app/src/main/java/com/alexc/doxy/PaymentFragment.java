@@ -34,6 +34,8 @@ public class PaymentFragment extends Fragment implements UserDebtorAdapter.OnUse
     private TextView textViewTitle;
     private TextView textViewDescription;
     private TextView textViewAmount;
+    private TextView payment_title_detalles;
+    private TextView payment_user_owner;
     private DatabaseHelper databaseHelper;
     private RecyclerView recyclerview;
     private RecyclerView recyclerviewYaPagados;
@@ -46,13 +48,14 @@ public class PaymentFragment extends Fragment implements UserDebtorAdapter.OnUse
         // Constructor vacío requerido
     }
 
-    public static PaymentFragment newInstance(int paymentId, String title, String description, Double amount) {
+    public static PaymentFragment newInstance(int paymentId, String title, String description, Double amount, String payment_owner) {
         PaymentFragment fragment = new PaymentFragment();
         Bundle args = new Bundle();
         args.putInt("paymentId", paymentId);
         args.putString("title", title);
         args.putString("description", description);
         args.putDouble("amount", amount);
+        args.putString("payment_owner", payment_owner);
         fragment.setArguments(args);
         return fragment;
     }
@@ -76,16 +79,21 @@ public class PaymentFragment extends Fragment implements UserDebtorAdapter.OnUse
         textViewTitle = view.findViewById(R.id.payment_title);
         textViewDescription = view.findViewById(R.id.payment_description);
         textViewAmount = view.findViewById(R.id.payment_amount);
+        payment_title_detalles = view.findViewById(R.id.payment_title_detalles);
+        payment_user_owner = view.findViewById(R.id.payment_user_owner);
 
         Bundle args = getArguments();
         if (args != null) {
             String title = args.getString("title");
             String description = args.getString("description");
+            String payment_owner = args.getString("payment_owner");
             double amount = args.getDouble("amount");
 
             textViewTitle.setText(title);
             textViewDescription.setText(description);
             textViewAmount.setText(Double.toString(amount) + " €");
+            payment_title_detalles.setText("Detalles del pago");
+            payment_user_owner.setText("Pagador: " + payment_owner);
         }
 
         databaseHelper = new DatabaseHelper(this.getActivity());

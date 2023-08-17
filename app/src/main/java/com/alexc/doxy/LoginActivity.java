@@ -35,11 +35,19 @@ public class LoginActivity extends AppCompatActivity {
         databaseHelper = new DatabaseHelper(this);
 
         if (databaseHelper.isUserTableEmpty()){
-            databaseHelper.addUser("a", "a", "a", "a", "a", null);
-            databaseHelper.addUser("b", "b", "b", "b", "b", null);
-            databaseHelper.addUser("c", "c", "c", "c", "c", null);
+            databaseHelper.addUser("Àlex", "Cifuentes", "alexcifuentes", "alexcc91999@gmail.com", "a", null);
+            databaseHelper.addUser("Marta", "Ferritto", "martaferritto", "martaaferrii59@gmail.com", "a", null);
+            databaseHelper.addUser("Guillem", "Segura", "guillesegura", "guillemsegura12@gmail.com", "a", null);
+            databaseHelper.addUser("Pau", "Cifuentes", "paucif", "paucifuentes25@gmail.com", "a", null);
+            databaseHelper.addUser("Angels", "Casamitjana", "acasami", "acasami3@gmail.com", "a", null);
+            databaseHelper.addUser("Jordi", "Balsa", "jorbalma", "jordibalsa22@gmail.com", "a", null);
             databaseHelper.addFriend(1, 2);
             databaseHelper.addFriend(1, 3);
+            databaseHelper.addFriend(1, 4);
+            databaseHelper.addFriend(1, 5);
+            databaseHelper.addFriend(1, 6);
+
+            //Crear mes coses per defecte
         }
 
         buttonLogin.setOnClickListener(new View.OnClickListener() {

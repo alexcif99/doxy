@@ -14,20 +14,26 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import java.io.ByteArrayOutputStream;
 
 public class ProfileFragment extends Fragment {
 
     private TextView textViewUsername;
+    private TextView textViewName;
     private TextView textViewEmail;
+    private TextView profile_surname;
     private ImageView profileImage;
+    private Button logOutButton;
 
     private static final int REQUEST_IMAGE_GALLERY = 1;
     private static final int REQUEST_IMAGE_CAPTURE = 2;
@@ -57,9 +63,12 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        textViewUsername = view.findViewById(R.id.profile_name);
+        textViewUsername = view.findViewById(R.id.profile_username);
+        textViewName = view.findViewById(R.id.profile_name);
         textViewEmail = view.findViewById(R.id.profile_email);
+        profile_surname = view.findViewById(R.id.profile_surname);
         profileImage = view.findViewById(R.id.profile_image);
+        logOutButton = view.findViewById(R.id.logout_button);
 
         // Crear una instancia de DatabaseHelper
         databaseHelper = new DatabaseHelper(this.getActivity());
@@ -72,8 +81,10 @@ public class ProfileFragment extends Fragment {
         String email = getArguments().getString("email");
 
         // Mostrar los datos en los TextViews
-        textViewUsername.setText(username);
-        textViewEmail.setText(email);
+        textViewUsername.setText("Usuario: " + username);
+        textViewName.setText(name);
+        textViewEmail.setText("Email: " + email);
+        profile_surname.setText(surname);
 
         // Cargar la imagen de perfil (si existe) o establecer el icono por defecto
         byte[] profileImageBytes = databaseHelper.getProfileImage(userId);
@@ -115,6 +126,16 @@ public class ProfileFragment extends Fragment {
                 imagePickerLauncher.launch(pickImageIntent);
             }
         });
+
+        logOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
 
         return view;
     }

@@ -1,5 +1,6 @@
 package com.alexc.doxy;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,10 +15,12 @@ import java.util.List;
 public class PaymentAdapter extends RecyclerView.Adapter<PaymentAdapter.PaymentViewHolder>{
     private List<Payment> payments;
     private OnItemClickListener onItemClickListener;
+    private Context context;
     private DatabaseHelper databaseHelper;
 
-    public PaymentAdapter(List<Payment> payments) {
+    public PaymentAdapter(List<Payment> payments, Context context) {
         this.payments = payments;
+        this.context = context;
     }
 
     @NonNull
@@ -33,10 +36,13 @@ public class PaymentAdapter extends RecyclerView.Adapter<PaymentAdapter.PaymentV
     public void onBindViewHolder(@NonNull PaymentViewHolder holder, int position) {
         Payment payment = payments.get(position);
 
+        databaseHelper = new DatabaseHelper(context);
+        User user = databaseHelper.getUser(payment.getOwnerUserId());
+
         String amount = String.valueOf(payment.getAmount());
         // Mostrar los datos del grupo de pago en la tarjeta
         holder.textViewTitle.setText(payment.getTitle());
-        holder.textViewOwner.setText(String.valueOf(payment.getOwnerUserId()));
+        holder.textViewOwner.setText("Pagador: " + user.getUsername());
         holder.textViewAmount.setText(amount + "€");
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

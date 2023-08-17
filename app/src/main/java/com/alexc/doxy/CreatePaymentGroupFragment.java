@@ -13,6 +13,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import static java.sql.DriverManager.println;
 
@@ -24,8 +26,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -38,6 +43,8 @@ public class CreatePaymentGroupFragment extends Fragment {
     private Button buttonCreateGroup;
     private RecyclerView recyclerview;
     private UserToAddPgAdapter adapter;
+    private Spinner spinnerGroupType;
+    private Integer imageResource;
 
     private DatabaseHelper databaseHelper;
 
@@ -53,6 +60,19 @@ public class CreatePaymentGroupFragment extends Fragment {
         editTextTitle = rootView.findViewById(R.id.editTextTitle);
         editTextDescription = rootView.findViewById(R.id.editTextDescription);
         buttonCreateGroup = rootView.findViewById(R.id.buttonCreatePaymentGroup);
+        spinnerGroupType = rootView.findViewById(R.id.spinnerGroupType);
+
+        ArrayAdapter<CharSequence> adapterAux = ArrayAdapter.createFromResource(
+                requireContext(),
+                R.array.group_types,
+                android.R.layout.simple_spinner_item
+        );
+
+        adapterAux.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerGroupType.setAdapter(adapterAux);
+
+
+
 
         // Crear una instancia de DatabaseHelper
         databaseHelper = new DatabaseHelper(this.getActivity());
@@ -98,7 +118,40 @@ public class CreatePaymentGroupFragment extends Fragment {
                 // todo: el mateix a create payment fragment, i crear la taula relacional etc
 
                 if (validateInput(title, description)) {
-                    Long pg_id = databaseHelper.addPaymentGroup(title, description);
+
+                    String selectedOption = spinnerGroupType.getSelectedItem().toString();
+
+                    // Aquí estableces el valor de imageResource basado en la opción seleccionada
+                    int imageResource = R.drawable.ic_otros;
+
+                    switch (selectedOption) {
+                        case "Viajes":
+                            imageResource = R.drawable.ic_plane;
+                            break;
+                        case "Familia":
+                            imageResource = R.drawable.ic_family;
+                            break;
+                        case "Amigos":
+                            imageResource = R.drawable.ic_beer;
+                            break;
+                        case "Otros":
+                            imageResource = R.drawable.ic_otros;
+                            break;
+                        case "Copas":
+                            imageResource = R.drawable.ic_beer;
+                            break;
+                        case "Restaurante":
+                            imageResource = R.drawable.ic_restaurant;
+                            break;
+                        case "Supermercado":
+                            imageResource = R.drawable.ic_supermarket;
+                            break;
+                        default:
+                            imageResource = R.drawable.ic_otros;
+                            break;
+                    }
+
+                    Long pg_id = databaseHelper.addPaymentGroup(title, description, imageResource);
                     println("Payment grup creado: " + Long.toString(pg_id));
                     for(User checked_user : checked_users){
                         databaseHelper.addRelUserPg(pg_id, checked_user.getId(),0.0);  //Passem el mateix debotr pq de moment no tindran deutes

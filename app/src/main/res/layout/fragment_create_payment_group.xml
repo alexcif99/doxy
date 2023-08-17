@@ -33,6 +33,29 @@
         app:layout_constraintTop_toBottomOf="@+id/editTextTitle" />
 
     <TextView
+        android:id="@+id/textViewAsunto"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text=" Asunto"
+        android:textSize="18dp"
+        android:textColor="#000000"
+        app:layout_constraintEnd_toEndOf="@+id/recyclerViewUsersToAddPg"
+        app:layout_constraintStart_toStartOf="@+id/recyclerViewUsersToAddPg"
+        app:layout_constraintTop_toBottomOf="@+id/editTextDescription" />
+
+    <Spinner
+        android:id="@+id/spinnerGroupType"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="24dp"
+        android:textColor="#000000"
+        app:layout_constraintTop_toBottomOf="@+id/textViewAsunto"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
         android:id="@+id/textViewAmigos"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -42,7 +65,7 @@
         android:textColor="#000000"
         app:layout_constraintEnd_toEndOf="@+id/recyclerViewUsersToAddPg"
         app:layout_constraintStart_toStartOf="@+id/recyclerViewUsersToAddPg"
-        app:layout_constraintTop_toBottomOf="@+id/editTextDescription" />
+        app:layout_constraintTop_toBottomOf="@+id/spinnerGroupType" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewUsersToAddPg"

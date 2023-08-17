@@ -29,11 +29,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link HomeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class HomeFragment extends Fragment {
 
     private RecyclerView recyclerView;
@@ -85,7 +80,7 @@ public class HomeFragment extends Fragment {
         // Configurar el RecyclerView
         recyclerView = view.findViewById(R.id.recyclerViewPaymentGroups);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        adapter = new PaymentGroupAdapter(paymentGroups);
+        adapter = new PaymentGroupAdapter(paymentGroups, getContext());
         recyclerView.setAdapter(adapter);
 
         adapter.setOnItemClickListener(new PaymentGroupAdapter.OnItemClickListener() {

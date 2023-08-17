@@ -60,8 +60,8 @@ public class TransactionDetailsAdapter extends RecyclerView.Adapter<TransactionD
     public void onBindViewHolder(@NonNull TransactionDetailsAdapter.ViewHolder holder, int position) {
         Transaction transactionDebtor = relTransactionPList.get(position);
         holder.usernameDebtor.setText(transactionDebtor.getUser().getUsername());
-        holder.usernameCreditor.setText(transactionDebtor.getUser_to_pay().getUsername());
-        holder.amountTextView.setText(Double.toString(transactionDebtor.getAmount_to_show()));
+        holder.usernameCreditor.setText("Debe a: " + transactionDebtor.getUser_to_pay().getUsername());
+        holder.amountTextView.setText(Double.toString(transactionDebtor.getAmount_to_show()) + "€");
     }
 
     @Override

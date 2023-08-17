@@ -60,7 +60,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     public void onBindViewHolder(@NonNull TransactionAdapter.ViewHolder holder, int position) {
         Transaction transactionDebtor = relTransactionPList.get(position);
         holder.usernameTextView.setText(transactionDebtor.getUser_to_pay().getUsername());
-        holder.paymentGroupTextView.setText(transactionDebtor.getPayment_group().getTitle());
+        holder.paymentGroupTextView.setText("Grupo: " + transactionDebtor.getPayment_group().getTitle());
         holder.amountTextView.setText(Double.toString(transactionDebtor.getAmount_to_show()) + "€");
     }
 

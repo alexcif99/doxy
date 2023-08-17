@@ -4,6 +4,7 @@ public class PaymentGroup {
     private int id;
     private String title;
     private String description;
+    private int image;
 
     public PaymentGroup(int id, String title, String description) {
         this.id = id;
@@ -21,6 +22,18 @@ public class PaymentGroup {
 
     public String getDescription() {
         return description;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getImage() {
+        return image;
+    }
+
+    public void setImage(int image) {
+        this.image = image;
     }
 }
 

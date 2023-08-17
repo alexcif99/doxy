@@ -19,7 +19,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
     //General
     private static final String DATABASE_NAME = "doxy_db";
-    private static final int DATABASE_VERSION = 37;
+    private static final int DATABASE_VERSION = 39;
     private Context context;
 
     // User
@@ -47,6 +47,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String PAYMENT_GROUP_ID = "id";
     public static final String PAYMENT_GROUP_TITLE = "title";
     public static final String PAYMENT_GROUP_DESCRIPTION = "description";
+    public static final String PAYMENT_GROUP_IMAGE = "image";
 
     //Relation User - PaymentGroup
     public static final String TABLE_REL_USER_PG = "rel_user_pg";
@@ -105,7 +106,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String createPaymentGroupTableQuery = "CREATE TABLE " + TABLE_PAYMENT_GROUP + "(" +
                 PAYMENT_GROUP_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 PAYMENT_GROUP_TITLE + " TEXT," +
-                PAYMENT_GROUP_DESCRIPTION + " TEXT" +
+                PAYMENT_GROUP_DESCRIPTION + " TEXT," +
+                PAYMENT_GROUP_IMAGE + " INTEGER" +
                 ")";
         db.execSQL(createPaymentGroupTableQuery);
         // Payment
@@ -244,14 +246,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public int isUserValid(String email, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
         String[] columns = {USER_ID};
-        String selection = USER_EMAIL + " = ? AND " + USER_PASSWORD + " = ?";
-        String[] selectionArgs = {email, password};
+        String selection = "(" + USER_EMAIL + " = ? OR " + USER_USERNAME + "= ? ) AND " + USER_PASSWORD + " = ?";
+        String[] selectionArgs = {email, email, password};
         Cursor cursor = db.query(TABLE_USER, columns, selection, selectionArgs, null, null, null);
-//        boolean isValid = cursor.moveToFirst();
-//        cursor.close();
-//        db.close();
-//        return isValid;
-        int userId = 0; // Valor predeterminado en caso de que no se encuentre el usuario
+        int userId = 0;
         if (cursor.moveToFirst()) {
             userId = cursor.getInt(cursor.getColumnIndex(USER_ID));
         }
@@ -399,16 +397,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return null;
     }
 
+    public double getAmountTotalFromPG(int paymentGroupId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {PAYMENT_AMOUNT};
+        String selection = PAYMENT_PAYMENT_GROUP_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(paymentGroupId)};
+
+        Cursor cursor = db.query(TABLE_PAYMENT, columns, selection, selectionArgs, null, null, null);
+
+        double totalAmount = 0.0;
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                @SuppressLint("Range") double amount = cursor.getDouble(cursor.getColumnIndex(PAYMENT_AMOUNT));
+                totalAmount += amount;
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+
+        return totalAmount;
+    }
+
+
 
     // todo: interessaria obtenir la suma de getPaymentsFromUserOwner
 
 
     // PAYMENT GROUP ----------
-    public long addPaymentGroup(String title, String description) {
+    public long addPaymentGroup(String title, String description, int image) {
         SQLiteDatabase db = this.getReadableDatabase();
         ContentValues values = new ContentValues();
         values.put(PAYMENT_GROUP_TITLE, title);
         values.put(PAYMENT_GROUP_DESCRIPTION, description);
+        values.put(PAYMENT_GROUP_IMAGE, image);
 
         return db.insert(TABLE_PAYMENT_GROUP, null, values);
     }
@@ -450,6 +471,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return paymentGroup;
     }
 
+    @SuppressLint("Range")
+    public int getPaymentGroupImageResource(int groupId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        int imageResource = 0; // Valor predeterminado si no se encuentra ningún recurso
+
+        Cursor cursor = db.rawQuery("SELECT " + PAYMENT_GROUP_IMAGE + " FROM " + TABLE_PAYMENT_GROUP + " WHERE " + PAYMENT_GROUP_ID + " = ?", new String[]{String.valueOf(groupId)});
+
+        if (cursor != null && cursor.moveToFirst()) {
+            imageResource = cursor.getInt(cursor.getColumnIndex(PAYMENT_GROUP_IMAGE));
+            cursor.close();
+        }
+
+        return imageResource;
+    }
+
+
 
 
     //USER - PG RELATION ---------------------------------------------------------------------------
@@ -480,6 +517,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String[] selectionArgs = {String.valueOf(paymentGroupId), String.valueOf(userId)};
         return db.query(TABLE_REL_USER_PG, columns, selection, selectionArgs, null, null, null);
     }
+
+    @SuppressLint("Range")
+    public double getAmountUserPG(int paymentGroupId, int userId) {
+        SQLiteDatabase db = getReadableDatabase();
+        String[] columns = {REL_USER_PG_AMOUNT};
+        String selection = REL_USER_PG_PAYMENT_GROUP_ID + " = ? AND " + REL_USER_PG_USER_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(paymentGroupId), String.valueOf(userId)};
+
+        Cursor cursor = db.query(TABLE_REL_USER_PG, columns, selection, selectionArgs, null, null, null);
+
+        double amount = 0.0;
+
+        if (cursor != null && cursor.moveToFirst()) {
+            amount = cursor.getDouble(cursor.getColumnIndex(REL_USER_PG_AMOUNT));
+            cursor.close();
+        }
+
+        return amount;
+    }
+
 
     @SuppressLint("Range")
     public double getDoubleAmountRelUserPG(int paymentGroupId, int userId) {
@@ -817,7 +874,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String[] columns = {TRANSACTION_ID, TRANSACTION_PAYMENT_GROUP_ID, TRANSACTION_USER_ID, TRANSACTION_USERTO_PAY_ID, TRANSACTION_AMOUNT};
         String selection = TRANSACTION_PAYMENT_GROUP_ID + " = ?";
         String[] selectionArgs = {String.valueOf(pg_id)};
-        return db.query(TABLE_TRANSACTIONS, columns, selection, selectionArgs, null, null, null);
+        String orderBy = TRANSACTION_AMOUNT + " ASC";
+        return db.query(TABLE_TRANSACTIONS, columns, selection, selectionArgs, null, null, orderBy);
 
     }
 

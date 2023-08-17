@@ -27,11 +27,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class PaymentGroupFragment extends Fragment {
     private TextView textViewTitle;
     private TextView textViewDescription;
+    private TextView textViewTitleTotalGastado;
+    private TextView textViewTotalGastado;
     private FloatingActionButton buttonAddPayment;
     private FloatingActionButton goToDetails;
     private DatabaseHelper databaseHelper;
@@ -68,8 +71,16 @@ public class PaymentGroupFragment extends Fragment {
 
         textViewTitle = view.findViewById(R.id.textViewPaymentGroupTitle);
         textViewDescription = view.findViewById(R.id.textViewPaymentGroupDescription);
+        textViewTitleTotalGastado = view.findViewById(R.id.textViewPaymentGroupTotalGastado);
+        textViewTotalGastado = view.findViewById(R.id.textViewTotalGastado);
         buttonAddPayment = view.findViewById(R.id.goToCreatePayment);
         goToDetails = view.findViewById(R.id.goToDetails);
+
+        databaseHelper = new DatabaseHelper(this.getActivity());
+
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("DoxyPrefs", Context.MODE_PRIVATE);
+        String string_user_id = sharedPreferences.getString("userId", "");
+        Integer user_id = Integer.parseInt(string_user_id);
 
         Bundle args = getArguments();
         if (args != null) {
@@ -77,14 +88,22 @@ public class PaymentGroupFragment extends Fragment {
             String description = args.getString("description");
             textViewTitle.setText(title);
             textViewDescription.setText(description);
+            textViewTitleTotalGastado.setText("Total gastado: ");
+
+            Double totalGastado = databaseHelper.getAmountTotalFromPG(paymentGroupId);
+
+            if (totalGastado % 1 == 0) {
+                DecimalFormat decimalFormat = new DecimalFormat("#.00");
+                String formattedAmount = decimalFormat.format(totalGastado);
+                formattedAmount = formattedAmount.replace(",", ".");
+                totalGastado = Double.parseDouble(formattedAmount);
+            } else {
+                totalGastado = Math.round(totalGastado * 100.0) / 100.0;
+            }
+
+            textViewTotalGastado.setText(Double.toString(totalGastado) + "€");
         }
 
-        // Obtener los datos del payment group según el ID
-        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("DoxyPrefs", Context.MODE_PRIVATE);
-        String string_user_id = sharedPreferences.getString("userId", "");
-        Integer user_id = Integer.parseInt(string_user_id);
-
-        databaseHelper = new DatabaseHelper(this.getActivity());
         Cursor cursor = databaseHelper.getPayments(paymentGroupId);
 
         ArrayList<Payment> payments = new ArrayList<>();
@@ -107,14 +126,15 @@ public class PaymentGroupFragment extends Fragment {
         // Configurar el RecyclerView
         recyclerView = view.findViewById(R.id.recyclerViewPayments);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        adapter = new PaymentAdapter(payments);
+        adapter = new PaymentAdapter(payments, getContext());
         recyclerView.setAdapter(adapter);
 
         adapter.setOnItemClickListener(new PaymentAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Payment payment) {
                 println(Double.toString(payment.getAmount()));
-                PaymentFragment fragment = PaymentFragment.newInstance(payment.getId(), payment.getTitle(), payment.getDescription(), payment.getAmount());
+                User u = databaseHelper.getUser(payment.getOwnerUserId());
+                PaymentFragment fragment = PaymentFragment.newInstance(payment.getId(), payment.getTitle(), payment.getDescription(), payment.getAmount(), u.getUsername());
                 FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.nav_host_fragment, fragment);

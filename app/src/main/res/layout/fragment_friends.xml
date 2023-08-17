@@ -15,7 +15,7 @@
             android:background="@color/colorPrimary"
             app:tabTextColor="#FFFFFF"
             app:tabSelectedTextColor="#FFFFFF"
-            app:tabIndicatorColor="#FF4081" />
+            app:tabIndicatorColor="#00BCD4" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

@@ -32,6 +32,7 @@ import java.util.ArrayList;
 public class PaymentGroupDetailsFragment extends Fragment {
     private TextView textViewTitle;
     private TextView textViewDescription;
+    private TextView textViewPaymentGroupDeudasDetails;
     private DatabaseHelper databaseHelper;
     private RecyclerView recyclerView;
     private int paymentGroupId;
@@ -64,6 +65,7 @@ public class PaymentGroupDetailsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_details_pg, container, false);
         textViewTitle = view.findViewById(R.id.textViewPaymentGroupTitleDetails);
         textViewDescription = view.findViewById(R.id.textViewPaymentGroupDescriptionDetails);
+        textViewPaymentGroupDeudasDetails = view.findViewById(R.id.textViewPaymentGroupDeudasDetails);
 
         Bundle args = getArguments();
         if (args != null) {
@@ -71,6 +73,7 @@ public class PaymentGroupDetailsFragment extends Fragment {
             String description = args.getString("description");
             textViewTitle.setText(title);
             textViewDescription.setText(description);
+            textViewPaymentGroupDeudasDetails.setText("Todas las deudas pendientes");
         }
 
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("DoxyPrefs", Context.MODE_PRIVATE);
