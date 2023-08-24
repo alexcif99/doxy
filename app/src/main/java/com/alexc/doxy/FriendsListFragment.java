@@ -55,8 +55,6 @@ public class FriendsListFragment extends Fragment implements UserListFriendsAdap
         listFriendsAdapter = new UserListFriendsAdapter(friendsList, this);
         recyclerViewFriends.setAdapter(listFriendsAdapter);
 
-        // Otros métodos y lógica del fragmento
-
         return view;
     }
 
@@ -99,7 +97,6 @@ public class FriendsListFragment extends Fragment implements UserListFriendsAdap
 
     @Override
     public void onFriendClick(User user) {
-        // Aquí muestras el cuadro de diálogo o realizas la acción necesaria con el usuario seleccionado
         showRemoveFriendDialog(user);
     }
 

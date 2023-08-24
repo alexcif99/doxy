@@ -25,8 +25,6 @@ public class User {
         this.username = username;
         this.email = email;
         this.isChecked = isChecked;
-//        this.contraseña = contraseña;
-//        this.profileBitmap = profileBitmap;
     }
 
     // Getters y setters
@@ -87,9 +85,7 @@ public class User {
     }
 
     public Bitmap getRoundedImageProfile() {
-        // Verificar si la imagen es null o tiene un tamaño de 0
         if (profileBitmap == null || profileBitmap.getWidth() == 0 || profileBitmap.getHeight() == 0) {
-            // Si la imagen es null o tiene un tamaño de 0, retornar null (o una imagen por defecto, si lo deseas)
             return null;
         }
 

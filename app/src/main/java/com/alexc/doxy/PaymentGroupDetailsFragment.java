@@ -1,10 +1,5 @@
 package com.alexc.doxy;
 
-import static com.alexc.doxy.DatabaseHelper.PAYMENT_AMOUNT;
-import static com.alexc.doxy.DatabaseHelper.PAYMENT_DESCRIPTION;
-import static com.alexc.doxy.DatabaseHelper.PAYMENT_ID;
-import static com.alexc.doxy.DatabaseHelper.PAYMENT_TITLE;
-import static com.alexc.doxy.DatabaseHelper.PAYMENT_USER_OWNER_ID;
 import static com.alexc.doxy.DatabaseHelper.TRANSACTION_AMOUNT;
 import static com.alexc.doxy.DatabaseHelper.TRANSACTION_ID;
 import static com.alexc.doxy.DatabaseHelper.TRANSACTION_PAYMENT_GROUP_ID;

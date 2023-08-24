@@ -71,9 +71,6 @@ public class CreatePaymentGroupFragment extends Fragment {
         adapterAux.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerGroupType.setAdapter(adapterAux);
 
-
-
-
         // Crear una instancia de DatabaseHelper
         databaseHelper = new DatabaseHelper(this.getActivity());
 

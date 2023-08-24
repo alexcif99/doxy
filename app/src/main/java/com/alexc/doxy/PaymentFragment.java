@@ -45,7 +45,6 @@ public class PaymentFragment extends Fragment implements UserDebtorAdapter.OnUse
     private ArrayList<UserDebtor> users_debtors;
 
     public PaymentFragment() {
-        // Constructor vacío requerido
     }
 
     public static PaymentFragment newInstance(int paymentId, String title, String description, Double amount, String payment_owner) {
@@ -67,10 +66,6 @@ public class PaymentFragment extends Fragment implements UserDebtorAdapter.OnUse
             paymentId = getArguments().getInt("paymentId");
         }
     }
-
-
-    // todo: es podria fer que si l'usuari actiu és el mateix que el owner del payment, el pugui editar
-    // todo: nomes e sposar un if i un else suposo
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -133,45 +128,7 @@ public class PaymentFragment extends Fragment implements UserDebtorAdapter.OnUse
         adapter.setOnUserDebtorClickListener(this);
         recyclerview.setAdapter(adapter);
 
-//        Cursor cursorYaPagados = databaseHelper.getUsersYaPagadosFromP(paymentId);
-//        ArrayList<UserDebtor> users_ya_pagados  = new ArrayList<>();
-//        if (cursorYaPagados != null && cursorYaPagados.moveToFirst()) {
-//            do {
-//                @SuppressLint("Range") int id = cursorYaPagados.getInt(cursorYaPagados.getColumnIndex(REL_USER_P_ID));
-//                @SuppressLint("Range") int user_id = cursorYaPagados.getInt(cursorYaPagados.getColumnIndex(REL_USER_P_USER_ID));
-//                @SuppressLint("Range") int payment_id = cursorYaPagados.getInt(cursorYaPagados.getColumnIndex(REL_USER_P_PAYMENT_ID));
-//                @SuppressLint("Range") double amount = cursorYaPagados.getDouble(cursorYaPagados.getColumnIndex(REL_USER_P_AMOUNT));
-//
-//                // Arrodonim amount, no interessen molts decimals
-//                if (amount % 1 == 0) {
-//                    DecimalFormat decimalFormat = new DecimalFormat("#.00");
-//                    String formattedAmount = decimalFormat.format(amount);
-//                    formattedAmount = formattedAmount.replace(",", ".");
-//                    amount = Double.parseDouble(formattedAmount);
-//                } else {
-//                    amount = Math.round(amount * 100.0) / 100.0;
-//                }
-//
-//                User user = databaseHelper.getUser(user_id);
-//                UserDebtor user_debtor = new UserDebtor(id, user_id, payment_id, user.getUsername(), amount);
-//                users_ya_pagados.add(user_debtor);
-//            } while (cursorYaPagados.moveToNext());
-//        }
-//        if (cursorYaPagados != null) {
-//            cursorYaPagados.close();
-//        }
-//
-//        // Configurar el RecyclerView
-//        recyclerviewYaPagados = view.findViewById(R.id.recyclerViewPaidPayments);
-//        recyclerviewYaPagados.setLayoutManager(new LinearLayoutManager(getActivity()));
-//        adapterYaPagados = new UserDebtorAdapter(users_ya_pagados, null);
-//        recyclerviewYaPagados.setAdapter(adapterYaPagados);
-
         return view;
-    }
-
-    private void loadPaymentGroupData() {
-
     }
 
     @Override
@@ -220,25 +177,18 @@ public class PaymentFragment extends Fragment implements UserDebtorAdapter.OnUse
         // Actualitzem amount usuari pagador
         Double old_amount_owner = databaseHelper.getDoubleAmountRelUserPG(paymentGroupId, payment.getOwnerUserId());
         Double amountToRecive = databaseHelper.getAmountFromRelUserP(payment.getOwnerUserId(), paymentId);
-//        Log.d("Old amount popietari: ", Double.toString(old_amount_owner));
         databaseHelper.subtractAmountRelUserPG(paymentGroupId, payment.getOwnerUserId(), amountToRecive, old_amount_owner);
         // Actualitzem amount usuari deutor
         Double my_old_amount = databaseHelper.getDoubleAmountRelUserPG(paymentGroupId, user_id);
         Double amountToPay = databaseHelper.getAmountFromRelUserP(payment.getOwnerUserId(), paymentId);
-//        Log.d("My old amount: ", Double.toString(my_old_amount));
         databaseHelper.addAmountRelUserPG(paymentGroupId, user_id, amountToPay, my_old_amount);
 
         // Marquem com a pagat
         databaseHelper.setAsPaidRelUserP(user_id, paymentId);
 
-//         Recalculem les transactions
+        // Recalculem les transactions
         CreatePaymentFragment createPaymentFragment = new CreatePaymentFragment();
         createPaymentFragment.balancePayments(paymentGroupId, databaseHelper);
-//            } while (cursor.moveToNext());
-//        }
-//        if (cursor != null) {
-//            cursor.close();
-//        }
 
         Toast.makeText(getActivity(), "Marcado como pagado correctamente", Toast.LENGTH_SHORT).show();
     }

@@ -73,14 +73,6 @@ public class UserListFriendsAdapter extends RecyclerView.Adapter<UserListFriends
         User user = userList.get(position);
         holder.usernameSimpleUserTextView.setText(user.getUsername());
         holder.profileImageSimpleUserImageView.setImageBitmap(user.getRoundedImageProfile());
-//        byte[] profileImageBytes = databaseHelper.getProfileImage(user.getId());
-//        if (profileImageBytes != null) {
-//            Bitmap profileBitmap = BitmapFactory.decodeByteArray(profileImageBytes, 0, profileImageBytes.length);
-//            Bitmap roundedBitmap = getRoundedBitmap(profileBitmap);
-//            holder.profileImageSimpleUserImageView.setImageBitmap(roundedBitmap);
-//        } else {
-//            holder.profileImageSimpleUserImageView.setImageResource(R.drawable.ic_profile);
-//        }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

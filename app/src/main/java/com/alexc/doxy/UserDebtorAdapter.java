@@ -39,15 +39,6 @@ public class UserDebtorAdapter extends RecyclerView.Adapter<UserDebtorAdapter.Vi
             usernameTextView = itemView.findViewById(R.id.usernameCardDebtor);
             amountTextView = itemView.findViewById(R.id.textViewAmountDebtFromPayment);
 
-//            itemView.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    int position = getAdapterPosition();
-//                    if (position != RecyclerView.NO_POSITION && itemClickListener != null) {
-//                        itemClickListener.onUserDebtorClick(relUserPList.get(position));
-//                    }
-//                }
-//            });
         }
     }
 

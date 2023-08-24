@@ -46,7 +46,6 @@ public class BalanceFragment extends Fragment {
     private DatabaseHelper databaseHelper;
 
     public BalanceFragment() {
-        // Required empty public constructor
     }
 
     @SuppressLint("MissingInflatedId")
@@ -57,15 +56,12 @@ public class BalanceFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_balance, container, false);
 
         textViewTransactionsHeader = view.findViewById(R.id.textViewTransactionsHeader);
-//        textViewTitleTeDeben = view.findViewById(R.id.textViewTeDeben);
 
         databaseHelper = new DatabaseHelper(this.getActivity());
 
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("DoxyPrefs", Context.MODE_PRIVATE);
         String string_user_id = sharedPreferences.getString("userId", "");
         Integer user_id = Integer.parseInt(string_user_id);
-
-        // Debes -----------------------------------------------------------------------------------
 
         Cursor cursorDebes = databaseHelper.getDebesTransactions(user_id);
 

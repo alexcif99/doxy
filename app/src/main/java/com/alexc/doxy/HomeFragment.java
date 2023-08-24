@@ -38,7 +38,6 @@ public class HomeFragment extends Fragment {
     private NavController navController;
 
     public HomeFragment() {
-        // Required empty public constructor
     }
 
     @Override
@@ -95,15 +94,8 @@ public class HomeFragment extends Fragment {
             }
         });
 
-//        navController = Navigation.findNavController(requireView());
         FloatingActionButton fabAddGroup = view.findViewById(R.id.goToCreatePaymentGroup);
-//        fabAddGroup.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                // Navegar al fragmento CreatePaymentGroupFragment
-//                navController.navigate(R.id.createPaymentGroupFragment);
-//            }
-//        });
+
         fabAddGroup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

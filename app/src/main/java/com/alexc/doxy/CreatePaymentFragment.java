@@ -114,14 +114,12 @@ public class CreatePaymentFragment extends Fragment {
                 // Una vegada emplenat en recyclerview, tornem a posar el currentUserId, per que a efectes contables si que volemque hi sigui
                 User currentUser = databaseHelper.getUser(currentUserId);
 
-                // todo: no es = users, es = checked_users, provar
                 ArrayList<User> usersInPayment = get_checked_users(users);
 
                 usersInPayment.add(currentUser);
 
                 if (validateInput(title, description, amount)) {
                     long payment_id = databaseHelper.addPayment(title, description, amount_double, Boolean.FALSE, currentUserId, pg_id);
-                    // todo: de moment dividim la quantitat total entre el nombre de participants, més endevant potser es fa que es pugui fixar un preu
                     Double amount_rel_user_p = amount_double/Double.parseDouble(String.valueOf(usersInPayment.size()));
                     for(User user:usersInPayment){
                         Double old_amount = 0.0;

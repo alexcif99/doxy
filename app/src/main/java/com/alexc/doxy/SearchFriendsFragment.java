@@ -62,9 +62,6 @@ public class SearchFriendsFragment extends Fragment implements UserAddFriendAdap
     }
 
     private void performSearch(String query) {
-        // Aquí debes implementar la lógica para buscar en la base de datos los usuarios cuyo username contenga el texto de 'query'
-        // Luego, actualiza la lista 'searchResultsList' con los resultados obtenidos y notifica al adapter
-        // Por ejemplo, si tienes un método llamado 'searchUsers' en tu databaseHelper, podrías hacer lo siguiente:
         searchResultsList.clear();
         searchResultsList.addAll(databaseHelper.searchUsers(query));
         searchAdapter.notifyDataSetChanged();

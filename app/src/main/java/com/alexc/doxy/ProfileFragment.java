@@ -35,9 +35,6 @@ public class ProfileFragment extends Fragment {
     private ImageView profileImage;
     private Button logOutButton;
 
-    private static final int REQUEST_IMAGE_GALLERY = 1;
-    private static final int REQUEST_IMAGE_CAPTURE = 2;
-
     private DatabaseHelper databaseHelper;
 
     private ActivityResultLauncher<Intent> imagePickerLauncher;
@@ -106,7 +103,7 @@ public class ProfileFragment extends Fragment {
                             try {
                                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), imageUri);
                                 // Redimensionar la imagen para evitar tamaños grandes en la base de datos
-                                Bitmap resizedBitmap = getResizedBitmap(bitmap, 200); // Tamaño máximo de 200x200 (ajustar según sea necesario)
+                                Bitmap resizedBitmap = getResizedBitmap(bitmap, 200);
                                 byte[] imageBytes = bitmapToByteArray(resizedBitmap);
                                 databaseHelper.saveProfileImage(userId, imageBytes);
                                 profileImage.setImageBitmap(getRoundedBitmap(resizedBitmap));
@@ -163,7 +160,7 @@ public class ProfileFragment extends Fragment {
     // Método para convertir un bitmap en un arreglo de bytes
     private byte[] bitmapToByteArray(Bitmap bitmap) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream); // Ajustar la calidad de compresión según sea necesario
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
         return outputStream.toByteArray();
     }
 
